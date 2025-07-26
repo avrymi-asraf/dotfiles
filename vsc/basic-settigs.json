@@ -1,0 +1,38 @@
+{
+    "editor.fontFamily": "'Fira code', 'Courier New', monospace",
+    "editor.fontLigatures": true,
+    "editor.fontVariations": true,
+    "editor.mouseWheelZoom": true,
+    "editor.minimap.enabled": false,
+    "editor.formatOnType": true,
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.acceptSuggestionOnCommitCharacter": false,
+    "files.autoSave": "onFocusChange",
+    "zenMode.centerLayout": false,
+    "zenMode.fullScreen": false,
+    "zenMode.hideLineNumbers": false,
+    "zenMode.silentNotifications": false,
+    "terminal.integrated.mouseWheelZoom": true,
+    "window.commandCenter": false,
+    "workbench.layoutControl.enabled": false,
+    "workbench.editor.empty.hint": "hidden",
+    "explorer.confirmDelete": false,
+    "explorer.confirmDragAndDrop": false,
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "git.confirmSync": false,
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "text": "You are an expert at summarizing code changes for Git commit messages. Your goal is to generate extremely brief, yet perfectly clear, commit messages.\n\n**Instructions:**\n\n1.  **Identify the Core Change:** Analyze the provided code diff or description of changes to pinpoint the single most important modification or the primary purpose of the commit.\n2.  **Be Terse:** Write *only* the core change. Use as few words as possible—ideally 2-5 words.\n3.  **Focus on \"What,\" not \"How\":** Describe what was changed or added, not the technical details of how it was implemented.\n4.  **No Punctuation (unless essential):** Omit periods, commas, and other punctuation unless absolutely necessary for clarity.\n5.  **Start with an Action Verb (Imperative Mood):** Begin with a verb in the imperative mood (e.g., \"Add,\" \"Fix,\" \"Update,\" \"Refactor,\" \"Remove\").\n6.  **Avoid Redundancy:** Do not include \"This commit,\" \"Changes include,\" or similar phrases.\n\n**Examples of Desired Output:**\n\n* `Fix login bug`\n* `Add user authentication`\n* `Refactor database schema`\n* `Update documentation links`\n* `Remove old feature`\n* `Improve performance`\n* `Upgrade dependency`\n* `Implement dark mode`\n\n**Constraint:** Your output *must* be only the commit message itself, nothing more."
+        }
+    ],
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true
+    },
+    "chat.instructionsFilesLocations": {
+        "instructions.md": true
+    },
+    "github.copilot.chat.codeGeneration.useInstructionFiles": true
+}
