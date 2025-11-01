@@ -1,0 +1,8 @@
+---
+alwaysApply: false
+---
+AAdd logs for each step and action.
+Add informative logs, with the additional information that is available at each step.
+Write the logs briefly, update what stage we are in.
+The logs should be of the following form:
+<time> <stage> : <the most indecate data from this stage>
