@@ -53,9 +53,13 @@ If something is not clear enough, ask!
 
 ---
 
-## Code Writing Rules
+## Code Writing Rules 📝
+**This section must be added to the `Agents.md` file exactly as written below:**
 
-* **Style Guide:** [Specify the code style guide to follow (e.g., PEP 8 for Python, Google C++ Style Guide).]
-* **Conventions:** [List any other project-specific development rules (e.g., commit message format, branching strategy, naming conventions).]
-```"
-````
+### File Header (Mandatory)
+In the header of every code file, you **must** write the connection between that specific file and the **overall project architecture** and **code flow**.
+
+Every code file **must** include a short description (no more than 4-5 sentences) that explains the following:
+* Its role in the **big picture** (as defined in the **Project Structure** section).
+* Its connection to the main **code flow** of the project.
+* The intended **execution environment** (where we will run this code, as defined in the **Project Goal** section).
