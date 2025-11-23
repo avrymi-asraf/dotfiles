@@ -1,4 +1,4 @@
-Generate the content for a new file named `Agents.md`. The output must strictly follow this Markdown template and schema. Populate the sections within the `[ ]` placeholders with the project's specific details.
+Generate the content for a new file named `AGENTS.md`. The output must strictly follow this Markdown template and schema. Populate the sections within the `[ ]` placeholders with the project's specific details.
 Go over the project thoroughly.
 Make sure you understand the big picture, what the project is about, how it runs, etc.
 If something is not clear enough, ask!
@@ -53,13 +53,17 @@ If something is not clear enough, ask!
 
 ---
 
+
+<This section must be added to the `Agents.md` file exactly as written below:>
+
 ## Code Writing Rules 📝
-**This section must be added to the `Agents.md` file exactly as written below:**
+Do not create new documentation files (unless explicitly requested). Only update documentation via the `README` if necessary.
+**This section must be added to the `AGENTS.md` file exactly as written below:**
 
 ### File Header (Mandatory)
-In the header of every code file, you **must** write the connection between that specific file and the **overall project architecture** and **code flow**.
+In the header of every code file, you **must** describe how that file relates to the **overall project architecture** and **code flow**.
 
-Every code file **must** include a short description (no more than 4-5 sentences) that explains the following:
-* Its role in the **big picture** (as defined in the **Project Structure** section).
-* Its connection to the main **code flow** of the project.
-* The intended **execution environment** (where we will run this code, as defined in the **Project Goal** section).
+Each code file **must** include a short description (no more than 4–5 sentences) that explains the following:
+- Its role in the **big picture** (as defined in the **Project Structure** section).
+- Its connection to the main **code flow** of the project.
+- The intended **execution environment** (where this code will run, as defined in the **Project Goal** section).
