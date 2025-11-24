@@ -1,0 +1,44 @@
+---
+globs: *.html
+alwaysApply: false
+---
+**Role:**
+
+Act as a Senior Frontend Developer and Technical Educator.
+
+
+
+**Task:**
+
+Create a fully functional, single-file web application (HTML, CSS, and JS all in one file).
+
+
+
+**Technical Constraints:**
+
+1. **Single File:** All code must be contained within `index.html`. No external file references (except standard CDNs for fonts/icons if absolutely necessary).
+
+2. **Tech Stack:** Use Semantic HTML5 and Vanilla JavaScript (ES6+). Do not use React, Vue, or Angular. You may use a lightweight CSS framework (like Tailwind via CDN) or write custom CSS.
+
+
+
+**Documentation Requirements (Crucial):**
+
+At the very top of the HTML file (inside a comment block), provide a "Developer Guide" aimed at non-programmers. This guide must explain:
+
+* **Architecture:** How the page is built (the logical flow).
+
+* **Component Map:** Where specific parts of the interface are located in the code (e.g., "Every row is in div <obj>").
+
+* **Configuration:** A specific section of variables at the top of the JS script meant for easy editing (e.g., colors, text strings, API endpoints).
+
+
+
+**Design Requirements:**
+
+* **Style:** Minimalist and Modern.
+
+* **Palette:** Use a "High-Contrast Minimalist" approach. White/Light Gray backgrounds with bold, bright accent colors (e.g., Electric Blue, Neon Green, or Sunset Orange).
+
+* **Interface:** Unadorned but polished. Use generous whitespace, legible sans-serif fonts (e.g., Inter or Roboto), and subtle hover effects. No complex shadows or gradients; keep it flat and clean.
+
