@@ -1,4 +1,4 @@
-Generate a GitLab issue using the Gitlab mcp format. First, scan and thoroughly understand the underlying code problem based on the review. The issue content MUST be highly concise and structured into the following sections:
+Generate a GitLab issue using the Gitlab mcp format. First, scan and thoroughly understand the underlying code problem or the feature based on the review. The issue content MUST be highly concise and structured into the following sections:
 
 1. Current State: Briefly describe the existing code problem or situation.
 2. Desired Change (What & Why): State precisely what needs to be altered and the fundamental reason (rationale) for the change.

@@ -1,5 +1,6 @@
-Generate the content for a new file named `AGENTS.md`. The output must strictly follow this Markdown template and schema. Populate the sections within the `[ ]` placeholders with the project's specific details.
+Create or update the content for the `AGENTS.md` file. The output must strictly follow this Markdown template and schema. Populate the sections within the `[ ]` placeholders with the project's specific details.
 Go over the project thoroughly.
+If the file already exists, read it and update it with the latest project information.
 Make sure you understand the big picture, what the project is about, how it runs, etc.
 If something is not clear enough, ask!
 
@@ -58,7 +59,6 @@ If something is not clear enough, ask!
 
 ## Code Writing Rules 📝
 Do not create new documentation files (unless explicitly requested). Only update documentation via the `README` if necessary.
-**This section must be added to the `AGENTS.md` file exactly as written below:**
 
 ### File Header (Mandatory)
 In the header of every code file, you **must** describe how that file relates to the **overall project architecture** and **code flow**.
