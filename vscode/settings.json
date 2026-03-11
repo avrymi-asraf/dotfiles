@@ -1,0 +1,250 @@
+// ============================================================
+// 1. DARK AMBER (warm gold)
+// ============================================================
+{
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#3d2a00",
+        "titleBar.inactiveBackground": "#2e1f00",
+        "titleBar.activeForeground": "#e8c87a",
+        "titleBar.inactiveForeground": "#9a7d45",
+        "activityBar.background": "#1a1200",
+        "activityBar.foreground": "#e8c87a",
+        "activityBar.inactiveForeground": "#7a6230",
+        "statusBar.background": "#2e1f00",
+        "statusBar.foreground": "#e8c87a",
+        "statusBar.noFolderBackground": "#2e1f00",
+        "statusBarItem.remoteBackground": "#4d3600",
+        "statusBarItem.remoteForeground": "#e8c87a",
+        "menubar.selectionBackground": "#4d3600",
+        "menu.foreground": "#e8c87a",
+        "menu.selectionForeground": "#fff3d6",
+        "menu.selectionBackground": "#4d3600",
+        "sideBarSectionHeader.background": "#251a00",
+        "editorGroupHeader.tabsBackground": "#1a1200"
+    }
+}
+// ============================================================
+// 2. DEEP NAVY (ocean blue)
+// ============================================================
+{
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#1e2d42",
+        "titleBar.inactiveBackground": "#162232",
+        "titleBar.activeForeground": "#7ab3e8",
+        "titleBar.inactiveForeground": "#4a7a9a",
+        "activityBar.background": "#0d1520",
+        "activityBar.foreground": "#7ab3e8",
+        "activityBar.inactiveForeground": "#305a7a",
+        "statusBar.background": "#162232",
+        "statusBar.foreground": "#7ab3e8",
+        "statusBar.noFolderBackground": "#162232",
+        "statusBarItem.remoteBackground": "#2a4060",
+        "statusBarItem.remoteForeground": "#7ab3e8",
+        "menubar.selectionBackground": "#2a4060",
+        "menu.foreground": "#7ab3e8",
+        "menu.selectionForeground": "#d6eaff",
+        "menu.selectionBackground": "#2a4060",
+        "sideBarSectionHeader.background": "#111c2a",
+        "editorGroupHeader.tabsBackground": "#0d1520"
+    }
+}
+// ============================================================
+// 3. FOREST GREEN (emerald)
+// ============================================================
+{
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#1e3a28",
+        "titleBar.inactiveBackground": "#152c1e",
+        "titleBar.activeForeground": "#7ae89a",
+        "titleBar.inactiveForeground": "#458a5a",
+        "activityBar.background": "#0b1a10",
+        "activityBar.foreground": "#7ae89a",
+        "activityBar.inactiveForeground": "#306a40",
+        "statusBar.background": "#152c1e",
+        "statusBar.foreground": "#7ae89a",
+        "statusBar.noFolderBackground": "#152c1e",
+        "statusBarItem.remoteBackground": "#2a5038",
+        "statusBarItem.remoteForeground": "#7ae89a",
+        "menubar.selectionBackground": "#2a5038",
+        "menu.foreground": "#7ae89a",
+        "menu.selectionForeground": "#d6ffe4",
+        "menu.selectionBackground": "#2a5038",
+        "sideBarSectionHeader.background": "#112218",
+        "editorGroupHeader.tabsBackground": "#0b1a10"
+    }
+}
+// ============================================================
+// 4. DEEP PURPLE (royal violet)
+// ============================================================
+{
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#2d1a4e",
+        "titleBar.inactiveBackground": "#22133a",
+        "titleBar.activeForeground": "#c08ae8",
+        "titleBar.inactiveForeground": "#7a5099",
+        "activityBar.background": "#150d26",
+        "activityBar.foreground": "#c08ae8",
+        "activityBar.inactiveForeground": "#5a3580",
+        "statusBar.background": "#22133a",
+        "statusBar.foreground": "#c08ae8",
+        "statusBar.noFolderBackground": "#22133a",
+        "statusBarItem.remoteBackground": "#3d2468",
+        "statusBarItem.remoteForeground": "#c08ae8",
+        "menubar.selectionBackground": "#3d2468",
+        "menu.foreground": "#c08ae8",
+        "menu.selectionForeground": "#ead6ff",
+        "menu.selectionBackground": "#3d2468",
+        "sideBarSectionHeader.background": "#1c1030",
+        "editorGroupHeader.tabsBackground": "#150d26"
+    }
+}
+// ============================================================
+// 5. DARK BURGUNDY (wine red)
+// ============================================================
+{
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#3e1520",
+        "titleBar.inactiveBackground": "#2e0f18",
+        "titleBar.activeForeground": "#e88a9a",
+        "titleBar.inactiveForeground": "#9a505e",
+        "activityBar.background": "#1a0a10",
+        "activityBar.foreground": "#e88a9a",
+        "activityBar.inactiveForeground": "#7a3040",
+        "statusBar.background": "#2e0f18",
+        "statusBar.foreground": "#e88a9a",
+        "statusBar.noFolderBackground": "#2e0f18",
+        "statusBarItem.remoteBackground": "#552030",
+        "statusBarItem.remoteForeground": "#e88a9a",
+        "menubar.selectionBackground": "#552030",
+        "menu.foreground": "#e88a9a",
+        "menu.selectionForeground": "#ffd6de",
+        "menu.selectionBackground": "#552030",
+        "sideBarSectionHeader.background": "#241018",
+        "editorGroupHeader.tabsBackground": "#1a0a10"
+    }
+}
+// ============================================================
+// 6. DARK TEAL (cyan ocean)
+// ============================================================
+{
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#0f3540",
+        "titleBar.inactiveBackground": "#0a2830",
+        "titleBar.activeForeground": "#7ae8d8",
+        "titleBar.inactiveForeground": "#459a8a",
+        "activityBar.background": "#061820",
+        "activityBar.foreground": "#7ae8d8",
+        "activityBar.inactiveForeground": "#307060",
+        "statusBar.background": "#0a2830",
+        "statusBar.foreground": "#7ae8d8",
+        "statusBar.noFolderBackground": "#0a2830",
+        "statusBarItem.remoteBackground": "#184a55",
+        "statusBarItem.remoteForeground": "#7ae8d8",
+        "menubar.selectionBackground": "#184a55",
+        "menu.foreground": "#7ae8d8",
+        "menu.selectionForeground": "#d6fff8",
+        "menu.selectionBackground": "#184a55",
+        "sideBarSectionHeader.background": "#082028",
+        "editorGroupHeader.tabsBackground": "#061820"
+    }
+}
+// ============================================================
+// 7. SLATE ROSE (dusty pink)
+// ============================================================
+{
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#3a1a2e",
+        "titleBar.inactiveBackground": "#2c1322",
+        "titleBar.activeForeground": "#e8a0c8",
+        "titleBar.inactiveForeground": "#9a6080",
+        "activityBar.background": "#1a0c16",
+        "activityBar.foreground": "#e8a0c8",
+        "activityBar.inactiveForeground": "#7a3860",
+        "statusBar.background": "#2c1322",
+        "statusBar.foreground": "#e8a0c8",
+        "statusBar.noFolderBackground": "#2c1322",
+        "statusBarItem.remoteBackground": "#4e2540",
+        "statusBarItem.remoteForeground": "#e8a0c8",
+        "menubar.selectionBackground": "#4e2540",
+        "menu.foreground": "#e8a0c8",
+        "menu.selectionForeground": "#ffd6ee",
+        "menu.selectionBackground": "#4e2540",
+        "sideBarSectionHeader.background": "#221020",
+        "editorGroupHeader.tabsBackground": "#1a0c16"
+    }
+}
+// ============================================================
+// 8. CHARCOAL STEEL (cool grey)
+// ============================================================
+{
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#2a2e35",
+        "titleBar.inactiveBackground": "#20242a",
+        "titleBar.activeForeground": "#b0bcc8",
+        "titleBar.inactiveForeground": "#6a7580",
+        "activityBar.background": "#14171a",
+        "activityBar.foreground": "#b0bcc8",
+        "activityBar.inactiveForeground": "#4a5560",
+        "statusBar.background": "#20242a",
+        "statusBar.foreground": "#b0bcc8",
+        "statusBar.noFolderBackground": "#20242a",
+        "statusBarItem.remoteBackground": "#383e48",
+        "statusBarItem.remoteForeground": "#b0bcc8",
+        "menubar.selectionBackground": "#383e48",
+        "menu.foreground": "#b0bcc8",
+        "menu.selectionForeground": "#e0e8f0",
+        "menu.selectionBackground": "#383e48",
+        "sideBarSectionHeader.background": "#1a1d22",
+        "editorGroupHeader.tabsBackground": "#14171a"
+    }
+}
+// ============================================================
+// 9. MIDNIGHT INDIGO (deep blue-violet)
+// ============================================================
+{
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#1a1a40",
+        "titleBar.inactiveBackground": "#131330",
+        "titleBar.activeForeground": "#9a9ae8",
+        "titleBar.inactiveForeground": "#5a5a9a",
+        "activityBar.background": "#0a0a20",
+        "activityBar.foreground": "#9a9ae8",
+        "activityBar.inactiveForeground": "#3a3a70",
+        "statusBar.background": "#131330",
+        "statusBar.foreground": "#9a9ae8",
+        "statusBar.noFolderBackground": "#131330",
+        "statusBarItem.remoteBackground": "#282858",
+        "statusBarItem.remoteForeground": "#9a9ae8",
+        "menubar.selectionBackground": "#282858",
+        "menu.foreground": "#9a9ae8",
+        "menu.selectionForeground": "#d6d6ff",
+        "menu.selectionBackground": "#282858",
+        "sideBarSectionHeader.background": "#101028",
+        "editorGroupHeader.tabsBackground": "#0a0a20"
+    }
+}
+// ============================================================
+// 10. COPPER EARTH (warm brown-orange)
+// ============================================================
+{
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#3a2215",
+        "titleBar.inactiveBackground": "#2c1a10",
+        "titleBar.activeForeground": "#e8b07a",
+        "titleBar.inactiveForeground": "#9a7045",
+        "activityBar.background": "#1a100a",
+        "activityBar.foreground": "#e8b07a",
+        "activityBar.inactiveForeground": "#7a5530",
+        "statusBar.background": "#2c1a10",
+        "statusBar.foreground": "#e8b07a",
+        "statusBar.noFolderBackground": "#2c1a10",
+        "statusBarItem.remoteBackground": "#4d3320",
+        "statusBarItem.remoteForeground": "#e8b07a",
+        "menubar.selectionBackground": "#4d3320",
+        "menu.foreground": "#e8b07a",
+        "menu.selectionForeground": "#ffe4d0",
+        "menu.selectionBackground": "#4d3320",
+        "sideBarSectionHeader.background": "#221510",
+        "editorGroupHeader.tabsBackground": "#1a100a"
+    }
+}
