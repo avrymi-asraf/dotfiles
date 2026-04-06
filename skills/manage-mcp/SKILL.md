@@ -1,5 +1,5 @@
 ---
-name: writing-mcp-tools
+name: manage-mcp
 description: Create and implement MCP tools for CDN management — write new tools, add MCP capabilities to existing skills, design tools around simple focused tasks. Use when implementing MCP in a skill, creating new MCP tools, adding tool methods to mcp, planning tool structure, or designing tool workflows.
 ---
 

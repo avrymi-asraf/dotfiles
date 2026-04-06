@@ -9,6 +9,31 @@ This skill covers the Jira lifecycle: **reading** issues, **searching** with JQL
 
 ---
 
+## ⚠️ Quick Reference — Critical Rules (Read Before Doing Anything)
+
+| Action | Mandatory pre-steps |
+|--------|---------------------|
+| **Create** a ticket | Run git context (Step 1) → resolve `components` (Step 3) → then call `jira_create_issue` |
+| **Update** a ticket | Fetch the issue first with `jira_get_issue`, then call `jira_update_issue` |
+| **Read/Search** | Jump straight to Part A |
+
+### REMCLOUD project — `components` is REQUIRED
+
+Skipping `components` when creating a `REMCLOUD` issue causes the API to return:
+> `Component/s should be modified during this transition.`
+
+**Always pass `components`** before calling `jira_create_issue`. Known values:
+
+| Work area               | `components` value |
+|-------------------------|--------------------|
+| Lambda@Edge / CDN       | `CDN`              |
+| Infrastructure as Code  | `terraform`        |
+| CI/CD pipelines         | `CI/CD`            |
+
+If unsure, call `jira_get_field_options` (see Step 3 in Part C).
+
+---
+
 ## Part A — Read & Search Jira Issues
 
 Use this section when the user provides an issue key, a Jira URL, or asks to find/search issues.
@@ -65,6 +90,17 @@ Call `jira_search` on the `user-jira` MCP server.
 | `limit`           | integer | 10      | 1–50                           |
 | `start_at`        | integer | 0       | For pagination                 |
 | `projects_filter` | string  | —       | Comma-separated project keys   |
+
+**Common JQL patterns:**
+
+```
+project = REMCLOUD ORDER BY created DESC
+assignee = currentUser() AND status != Done
+labels = "prems" AND project = REMCLOUD
+updated >= -7d AND project = REMCLOUD
+issuetype = Bug AND status = "In Progress" AND project = REMCLOUD
+text ~ "lambda edge" AND project = REMCLOUD
+```
 
 **Example — find my open issues:**
 
@@ -141,7 +177,7 @@ Before making any code changes:
 
 ### Step 0. Decide: Create or Update?
 
-- **Update** — the user provides an existing issue key (e.g., `REMCLOUD-1234`) or a Jira URL. Fetch the issue first with `jira_get_issue`, then jump to **Step 5b**.
+- **Update** — the user provides an existing issue key (e.g., `REMCLOUD-1234`) or a Jira URL. Fetch the issue first with `jira_get_issue`, then jump to **Step 4b**.
 - **Create** — no existing issue key. Follow the full workflow below.
 
 ---
@@ -168,35 +204,13 @@ This produces three values used in the create/update call:
 
 If a command fails (e.g., not a git repo), skip that label.
 
-### 2. Understand the Codebase (Mandatory)
+### 2. Analyze the Request
 
-**Never create a ticket from the user's sentence alone.** The user gives a brief idea; your job is to research the codebase and write a detailed, technical description.
+- Read the user's prompt to understand what the ticket is about.
+- Scan relevant code files, make sure you understand the code, where and how it is used, if the ticket relates to a code change.
+- Keep analysis brief; the goal is context for the ticket description.
 
-1. Read the user's prompt to identify the affected area.
-2. Use Read, Grep, SemanticSearch, or the `explore` subagent to examine the relevant code — entry points, current behavior, config files, data flow.
-3. Understand **what exists today** so the description explains what needs to change and why.
-
-This step is **not optional**. If you skip it, the ticket will be a shallow echo of the user's sentence and useless to whoever picks it up.
-
-### 3. Write the Description
-
-Use the following structure (adapt sections as needed):
-
-```
-**Objective:**
-One-paragraph summary of the goal in your own words (NOT a copy of the user's sentence).
-
-**Current Behavior:**
-How the system works today — reference specific files, functions, or config patterns you found in step 2.
-
-**Proposed Change:**
-Concrete technical steps to implement the feature/fix. Reference files, modules, or APIs involved.
-
-**Acceptance Criteria:**
-- [ ] Measurable criteria that define "done"
-```
-
-### 4. Resolve Required Fields (Components)
+### 3. Resolve Required Fields (Components)
 
 Some Jira projects (e.g., `REMCLOUD`) **require** a component on issue creation.
 If you skip it, the API returns: `Component/s should be modified during this transition.`
@@ -218,7 +232,7 @@ Pick the component that best matches the work area. Known mappings:
 
 If the work area is not in the table above, use the fetched list to pick the closest match.
 
-### 5a. Create the Issue
+### 4a. Create the Issue
 
 Call `jira_create_issue` on the `user-jira` MCP server.
 `summary`, `description`, `assignee`, `components` are all **top-level** parameters.
@@ -230,14 +244,14 @@ Call `jira_create_issue` on the `user-jira` MCP server.
 | `project_key` | string | Ask the user if not known. Common: `REMCLOUD` |
 | `summary`     | string | Short ticket title                           |
 | `issue_type`  | string | `Task`, `Bug`, `Story`, `Epic`, or `Subtask` |
-| `components`  | string | From step 4. Comma-separated: `"CDN"` or `"CDN,AWS"` |
+| `components`  | string | From step 3. Comma-separated: `"CDN"` or `"CDN,AWS"` |
 
 **Optional parameters:**
 
 | Parameter           | Type   | Notes                                                          |
 |---------------------|--------|----------------------------------------------------------------|
 | `assignee`          | string | Email from step 1                                              |
-| `description`       | string | Markdown format — use the template from step 3                 |
+| `description`       | string | Markdown format                                                |
 | `additional_fields` | string | JSON string with labels (repo + branch from step 1). See below |
 
 **Example call** (using values from step 1: email `user@example.com`, repo `my-repo`, branch `feature-xyz`):
@@ -255,7 +269,7 @@ arguments: {
 }
 ```
 
-### 5b. Update an Existing Issue
+### 4b. Update an Existing Issue
 
 Call `jira_update_issue` on the `user-jira` MCP server.
 

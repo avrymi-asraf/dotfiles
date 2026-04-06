@@ -1,0 +1,17 @@
+# Skill symlink map
+# Maps hostname + user to the directories where skills should be linked.
+# Targets support ~ expansion and glob patterns (e.g. copilot-chat-*).
+# Run `uv run update.py` to apply.
+
+hosts:
+  MEWL-5CD4305QXX:
+    user: user
+    targets:
+      - ~/.claude/skills
+      - ~/.vscode-server/extensions/github.copilot-chat-*/assets/prompts/skills
+
+  # Add more machines below:
+  # my-other-machine:
+  #   user: alice
+  #   targets:
+  #     - ~/.claude/skills
