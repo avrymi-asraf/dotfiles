@@ -10,40 +10,43 @@ USR=$(whoami)
 # Validate map.yaml exists
 [[ -f "$MAP" ]] || { echo "error: map.yaml not found at $MAP"; exit 1; }
 
-# Resolve targets for this host/user — expands ~ and globs, validates host/user
-TARGETS=$(python3 - <<EOF
+# Parse map.yaml — emit "<path>|<skill1>,<skill2>,..." per resolved location
+ENTRIES=$(python3 - <<EOF
 import yaml, sys, os, glob
 
 config = yaml.safe_load(open("$MAP"))
-hc = config.get("hosts", {}).get("$HOST")
+key = "$HOST/$USR"
+hc = config.get("hosts", {}).get(key)
 
 if not hc:
-    sys.exit("error: no entry for host '$HOST' in map.yaml")
+    sys.exit("error: no entry for '$HOST/$USR' in map.yaml")
 
-expected_user = hc.get("user")
-if expected_user and expected_user != "$USR":
-    sys.exit("error: host '$HOST' is mapped to user '" + expected_user + "', running as '$USR'")
-
-for raw in hc.get("targets", []):
+for entry in hc:
+    raw, skills = next(iter(entry.items()))
+    skill_str = "all" if skills == "all" else ",".join(skills)
     expanded = os.path.expanduser(raw)
     matches = glob.glob(expanded) if "*" in expanded else [expanded]
     if not matches:
         print(f"warn: no match for glob: {raw}", file=sys.stderr)
     for m in matches:
-        print(m)
+        print(f"{m}|{skill_str}")
 EOF
 ) || exit 1
 
 skill_count=$(find "$SKILLS" -mindepth 1 -maxdepth 1 -type d | wc -l)
 echo "$HOST / $USR — $skill_count skills"
 
-while IFS= read -r target; do
+while IFS='|' read -r target skill_list; do
     echo ""
     echo "$target"
     mkdir -p "$target"
 
     for skill in "$SKILLS"/*/; do
         name=$(basename "$skill")
+        # Skip if not in this location's skill list
+        if [[ "$skill_list" != "all" ]] && [[ ",${skill_list}," != *",${name},"* ]]; then
+            continue
+        fi
         link="$target/$name"
 
         if [[ -L "$link" ]]; then
@@ -59,4 +62,4 @@ while IFS= read -r target; do
             echo "  link  $name"
         fi
     done
-done <<< "$TARGETS"
+done <<< "$ENTRIES"

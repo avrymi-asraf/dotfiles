@@ -71,6 +71,13 @@ If you have reference files, explain what they are and how to use them. link to 
 Write a integreted example of using the skill, that includes the different topics and reference files. make it as concrete as possible, and not abstract. you can also include common mistakes in the example and how to fix them. look the sction about examples
 </examples>
 ```
+
+| Field | Requirements | Purpose |
+|-------|--------------|---------|
+| `name` | Max 64 chars, lowercase letters/numbers/hyphens | Unique identifier |
+| `description` | Max 1024 chars, non-empty | Helps agent decide when to apply the skill |
+
+Use [Common Patterns](Common Patterns.md) for writing patterns.
 </Skill-File-Structure>
 
 <Examples>
@@ -121,7 +128,7 @@ The context window is shared. Every token competes for space. The agent is alrea
 
 **SKILL.md must be under 300 lines.** Put essentials in SKILL.md; detailed reference in separate files read on demand. Keep references one level deep.
 
-**SKILL.md ↔ reference file relationship**: The SKILL.md must explain each topic it covers well enough for the agent to act on it — references supplement, they don't replace. Each reference file must be focused on exactly one topic: it is a reference collection, not a secondary SKILL.md. Keep reference files short and specific. If a reference file is growing long or covering multiple concerns, split it or fold the essential parts back into SKILL.md.
+**SKILL.md ↔ reference file relationship**: The SKILL.md must explain each topic it covers well enough for the agent to act on it — references supplement, they don't replace. Each reference file must be focused on exactly one topic: it is a reference collection, not a secondary SKILL.md. Keep reference files specific. If a reference file is growing long or covering multiple concerns, split it or fold the essential parts back into SKILL.md.
 
 ### 3. Set Appropriate Degrees of Freedom
 
@@ -207,3 +214,13 @@ When a skill describes a process or workflow, **you must verify it yourself** be
 - [ ] No "pile of fixes" — root cause addressed
 - [ ] New content integrated into existing sections
 </Checklist>
+
+
+<Common-sections>
+checklist - for spesific workflows, state or for the system.
+anti-patterns-and-common-mistakes - this will be a group list of common mistakes. keep it practical.
+examples - like in the examples section. it is important to give an integrated examples that will thuch the agent how to work.
+testing
+
+
+</Common-sections>
