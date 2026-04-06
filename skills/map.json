@@ -1,0 +1,16 @@
+{
+    "hosts": {
+        "MEWL-5CD4305QXX/user": [
+            {
+                "location": "~/.claude/skills",
+                "skills": [
+                    "chatreplay",
+                    "jira-workflow",
+                    "manage-mcp",
+                    "manage-skills",
+                    "scripts"
+                ]
+            }
+        ]
+    }
+}
