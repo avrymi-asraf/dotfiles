@@ -11,6 +11,18 @@
                     "scripts"
                 ]
             }
+        ],
+        "avreymi-pc/avreymi": [
+            {
+                "location": "~/agents/skills",
+                "skills": [
+                    "chatreplay",
+                    "jira-workflow",
+                    "manage-mcp",
+                    "manage-skills",
+                    "scripts"
+                ]
+            }
         ]
     }
 }

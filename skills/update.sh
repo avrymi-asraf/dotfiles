@@ -9,6 +9,10 @@ MAP="$DIR/map.json"
 HOST_USER="$(hostname)/$(whoami)"
 
 [[ -f "$MAP" ]] || { echo "error: map.json not found" >&2; exit 1; }
+
+command -v jq > /dev/null 2>&1 \
+    || { echo "error: jq is required (install jq and rerun)" >&2; exit 1; }
+
 jq -e --arg k "$HOST_USER" '.hosts[$k]' "$MAP" > /dev/null \
     || { echo "error: no entry for '$HOST_USER' in map.json" >&2; exit 1; }
 

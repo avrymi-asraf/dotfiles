@@ -2,10 +2,7 @@
 globs: README.md
 alwaysApply: false
 ---
-The README is the entry point to this project. It must be useful both for humans and for agents.
----
-mode: agent
----
+
 The README is the entry point to the project. It should be useful for both humans and agents.
 
 Read: the existing README (if it exists), the file system, and the code.
