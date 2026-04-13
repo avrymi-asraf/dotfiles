@@ -3,9 +3,25 @@ name: manage-skills
 description: Update, create, fix or improve Agent Skills (SKILL.md files). MUST be read before editing any SKILL.md file. Use when the user asks to update, modify, fix, create, improve, or review any skill — even if they point directly to the skill file path.
 ---
 <manage-skills>
+
 Managing Agent Skills
-Skills are markdown files that teach agents how to perform specific tasks. This skill guides you through creating and updating them.
-In this skill we cover: how to structure a skill file, how to write clear instructions, common patterns for workflows and error handling, and a checklist to verify your work.
+
+Skills are markdown files that teach agents how to perform specific tasks. This skill guides you through creating and updating them, ensuring consistency, high actionability, and readability.
+
+### Topics Covered
+- **Use [Skill-File-Structure]** to learn how directories and SKILL.md arestructured.
+- **Use [Examples]** to see concrete implementations.
+- **Use [Writing-Descriptions]** to write effective trigger conditions (WHAT and WHEN).
+- **Use [Core-Authoring-Principles]** for the primary rules of skill-writing (progressive disclosure, brevity).
+- **Use [Scripting]** to understand when and how to build versatile internal scripts.
+- **Use [Anti-Patterns-and-Common-Mistakes]** to avoid typical pitfalls.
+- **Use [Creating-a-New-Skill]** and **[Updating-an-Existing-Skill]** for end-to-end workflows.
+- **Use [Verifying-Workflows-and-Processes]** to ensure your instructions execute flawlessly.
+- **Use [Checklist]** to consistently verify your work before finalizing.
+- **Use [Common-sections]** for standard patterns like checklists and examples.
+
+For broader architectural patterns, consult [Common Patterns](Common Patterns.md).
+
 </manage-skills>
 
 <Skill-File-Structure>
@@ -82,15 +98,21 @@ Use [Common Patterns](Common Patterns.md) for writing patterns.
 
 <Examples>
 Concrete examples of using this skill's tools and workflows.
+
+**Example: A Good Opening Section**
+Instead of a single sentence, provide context and explicitly link to all subsequent topics so the agent knows exactly where to look:
+
+```markdown
+<csv-parser>
+Parses complex CSV files with nested structures.
+
+### Topics Covered
+- **Use [Basic-Parsing]** for standard schema extraction.
+- **Use [Error-Handling]** for dealing with malformed rows.
+- **Use [Scripting]** for the `parse_csv.py` automated tool.
+- Reference [Formatting Rules](reference.md) for output standards.
+</csv-parser>
 ```
-
-**The opening section is the most important part of the skill.** An agent reads the first ~50–80 lines before deciding how to proceed — and may not read further if the opening doesn't give it enough to work with. The opening section must:
-
-- Explain the full domain: what this skill covers, why it exists, and how all the pieces relate
-- Give enough context that the agent can act correctly on the most common tasks without reading anything else
-- Link explicitly to every subsequent topic and reference file so the agent knows where to look
-
----
 </Examples>
 <Writing-Descriptions>
 
@@ -138,13 +160,19 @@ The context window is shared. Every token competes for space. The agent is alrea
 | **Medium** (templates) | Preferred pattern with variation | Report generation |
 | **Low** (specific scripts) | Fragile, consistency critical | Database migrations |
 
-### 4. Use Scripts for Automation
-
-When a skill needs automation or tooling, use scripts — not MCP. Scripts are explicit, portable, and easy to audit. Place them in `scripts/` and invoke them from the skill instructions.
-
-See the [scripts skill](../scripts/SKILL.md) for how to write and structure auxiliary scripts correctly.
-
 </Core-Authoring-Principles>
+
+<Scripting>
+
+When a skill needs automation or tooling, use scripts. Scripts are explicit, portable, and easy to audit. Place them in `scripts/` and invoke them from the skill instructions.
+
+**Critical Scripting Principles:**
+- **No simple commands**: Scripts should cover actions that have no simple way to do them. If there are simple CLI commands or one-liners to perform the action, there is no reason to create a script. Do not create scripts that just wrap simple commands.
+- **Document All Commands**: Even if actions can be done with simple commands and don't require scripts, **all necessary base commands must be explicitly documented in a reference file** (e.g., `reference.md`).
+- **Versatile and Modular**: Think of scripts as versatile and modular tools that will allow for extensive work. Build them to handle complex logic, error handling, or multi-step processes that are too brittle for simple command strings.
+- See the [scripts skill](../scripts/SKILL.md) for how to write and structure auxiliary scripts correctly.
+
+</Scripting>
 
 <Anti-Patterns-and-Common-Mistakes>
 
@@ -204,7 +232,7 @@ When a skill describes a process or workflow, **you must verify it yourself** be
 - [ ] Each reference file covers exactly one topic — concise, not a second SKILL.md
 - [ ] File references are one level deep
 - [ ] Progressive disclosure used appropriately
-- [ ] Scripts used for automation (not MCP)
+- [ ] Scripts cover complex actions and are versatile (no simple command wrappers)
 - [ ] Workflows have clear steps
 - [ ] Processes have been walked through and verified end-to-end
 
@@ -217,10 +245,10 @@ When a skill describes a process or workflow, **you must verify it yourself** be
 
 
 <Common-sections>
-checklist - for spesific workflows, state or for the system.
-anti-patterns-and-common-mistakes - this will be a group list of common mistakes. keep it practical.
-examples - like in the examples section. it is important to give an integrated examples that will thuch the agent how to work.
-testing
 
+- **checklist**: For specific workflows, states, or for the system.
+- **anti-patterns-and-common-mistakes**: A grouped list of common mistakes. Keep it practical.
+- **examples**: An integrated example that will teach the agent how to work.
+- **testing**: How to verify that the logic or tool works correctly.
 
 </Common-sections>
