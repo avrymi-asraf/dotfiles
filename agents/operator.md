@@ -77,4 +77,4 @@ When the user asks "what is the status?" — they mean **training pipeline readi
 ## Session Start
 
 1. Read `operator.memory.md` to understand recent context.
-2. Use the skills in `~/code/dotfiles/skills/` — they encode hard-won knowledge. Do not reinvent what is already documented.
+2. Use the skills, they encode hard-won knowledge. Do not reinvent what is already documented.
