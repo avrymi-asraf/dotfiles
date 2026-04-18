@@ -1,9 +1,6 @@
 ---
 name: chatreplay
-description:
-  Parse and interpret `.chatreplay.json` files — a log format that captures the full agentic
-  session between a user, an AI assistant (GitHub Copilot / VS Code agent), and its tools.
-  Use this skill when asked to read, analyze, summarize, or debug a chatreplay file.
+description: Parse and interpret `.chatreplay.json` files — a log format that captures the full agentic session between a user, an AI assistant (GitHub Copilot / VS Code agent), and its tools. Use this skill when asked to read, analyze, summarize, or debug a chatreplay file.
 ---
 
 # Chatreplay Protocol Reference

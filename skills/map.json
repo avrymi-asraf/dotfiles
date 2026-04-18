@@ -14,13 +14,12 @@
         ],
         "avreymi-pc/avreymi": [
             {
-                "location": "~/agents/skills",
+                "location": "/home/avreymi/code/fine-tuning-skills/.opencode/skills",
                 "skills": [
-                    "chatreplay",
-                    "jira-workflow",
                     "manage-mcp",
                     "manage-skills",
-                    "scripts"
+                    "scripts",
+                    "agent-and-skill-improvement"
                 ]
             }
         ]

@@ -1,0 +1,14 @@
+Agents, Skills, and Memory
+1. Agents
+Agents represent the specific personas or roles assigned to execute tasks. They define the personality and approach required to do the work. For example, a "Developer" agent would be a persona specifically tailored to write code.
+2. Skills
+Skills constitute the knowledge base and practical expertise of the model. For an AI to contribute true wisdom, its skills must contain broad, high-quality units of information.Cognitive Flexibility: A well-designed skill provides a complete range of freedom. It encompasses everything from explaining the foundational roots of a concept to offering practical recipes for execution. Rather than forcing the model into rigid, step-by-step instructions, this approach provides enough context for the model to utilize its own reasoning, deduction, and connection capabilities.
+3. Memory & Tools
+Memory and tools are context-dependent resources, scoped specifically to individual projects and agents.
+Memory
+Memory is divided into two distinct categories:Short-Term Memory: Acts as the active working space. It contains a log of recent actions and maintains the current status of the project.Long-Term Memory: Acts as a repository for crucial, highly technical details. This is reserved for important data that doesn't naturally fit into a general "Skill" and doesn't belong to a specific "Agent's" core personality.ToolsTools act as a specialized form of long-term memory. They function similarly to standard memory by being attached to a project or agent, but they specifically contain the connections, configurations, and instructions on how the agent should use external resources to perform actions.
+4. Communication Hub (Agents.md)
+This document serves as the central collaboration space for all agents to communicate. It should continuously track the status of the project, outline how the project operates, map out the code flow, and serve as the single source of truth for agent coordination.
+
+
+- Ideas soulde be appear in difference locatoins, with differece views.

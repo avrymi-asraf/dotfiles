@@ -54,6 +54,11 @@ If something is not clear enough, ask!
 
 ---
 
+## Status
+<What are the status of the project? in dev, if we need to deploy - in prsees. it soulde be smale pharagrap that describe what is the status.
+we use projct x on google, initlaize the bla bla.
+>
+
 
 <This section must be added to the `Agents.md` file exactly as written below:>
 
