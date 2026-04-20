@@ -1,0 +1,27 @@
+{
+    "hosts": {
+        "MEWL-5CD4305QXX/user": [
+            {
+                "location": "~/.claude/skills",
+                "skills": [
+                    "chatreplay",
+                    "jira-workflow",
+                    "manage-mcp",
+                    "manage-skills",
+                    "scripts"
+                ]
+            }
+        ],
+        "avreymi-pc/avreymi": [
+            {
+                "location": "/home/avreymi/code/fine-tuning-skills/.opencode/skills",
+                "skills": [
+                    "manage-mcp",
+                    "manage-skills",
+                    "scripts",
+                    "agent-and-skill-improvement"
+                ]
+            }
+        ]
+    }
+}
