@@ -1,2 +1,3 @@
 opencode-debug.jsonl
 node_modules/
+__pycache__/
