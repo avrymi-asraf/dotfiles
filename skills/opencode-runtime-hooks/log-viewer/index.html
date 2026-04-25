@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--
+    * Architecture:
+    * - Single-page vanilla HTML/JS application (no server required).
+    * - Reads standard JSON Lines (.jsonl) files via HTML5 FileReader API.
+    * - Dynamic nested DOM generation for inspecting JSON payloads.
+    *
+    * Component Map:
+    * - HTML File Input (<input type="file">): lets users select local `.jsonl` files natively.
+    * - JSON Tree Builder (createJSONView): recursively converts JSON objects to explorable DOM nodes.
+    * - Log Row Renderer (createRow): formats logs into expandable lines based on log type.
+    * - Keyboard Navigator: allows arrow-key navigation across rows and deep into JSON trees.
+    *
+    * Configuration:
+    * - Uses standard web APIs, only external dependency is Google Fonts for typography.
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent System Logs (Local Viewer)</title>
+    <!-- External Fonts for UI and Code -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Base Styling */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0d1117; 
+            color: #c9d1d9; 
+            margin: 0; 
+            padding: 30px 40px; 
+        }
+        h1 { 
+            font-weight: 600; 
+            color: #ffffff; 
+            margin-bottom: 20px;
+        }
+
+        /* Controls Section */
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        input[type="file"] {
+            padding: 8px 10px;
+            border-radius: 6px;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        input[type="file"]:focus { border-color: #58a6ff; outline: none; }
+        
+        /* Container for all Log Lines */
+        #logs-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        /* Essential Log Row styles */
+        .log-row {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            overflow: hidden;
+            outline: none;
+            transition: border-color 0.1s;
+        }
+        .log-row:focus, .log-row:focus-within {
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 1px #58a6ff;
+        }
+
+        .log-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            gap: 16px;
+            user-select: none;
+        }
+        
+        .log-row.expanded .log-header {
+            border-bottom: 1px solid #21262d;
+            background-color: #1f242c;
+        }
+        .log-header:hover { background-color: #1f242c; }
+
+        .chevron {
+            font-size: 10px;
+            transition: transform 0.2s;
+            color: #8b949e;
+            display: inline-block;
+            width: 12px;
+            text-align: center;
+        }
+        .log-row.expanded > .log-header > .chevron { transform: rotate(90deg); color: #c9d1d9; }
+
+        /* Categorized Badges for log mapping */
+        .type-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background-color: #233a4d;
+            color: #79c0ff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        
+        /* Color-coding variations */
+        .type-badge.event { background-color: #1e3a29; color: #56d364; }
+        .type-badge.error { background-color: #4a1f24; color: #f85149; }
+        .type-badge.request { background-color: #31215c; color: #d2a8ff; }
+
+        /* Summary text of the log */
+        .summary-text {
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: #8b949e;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-grow: 1;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #8b949e;
+            font-family: 'Fira Code', monospace;
+            white-space: nowrap;
+        }
+
+        .log-body {
+            display: none;
+            padding: 16px;
+            background-color: #010409;
+        }
+        .log-row.expanded .log-body { display: block; }
+        
+        pre { 
+            margin: 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: #c9d1d9;
+            white-space: pre-wrap; 
+            word-wrap: break-word; 
+            line-height: 1.5;
+        }
+        
+        .loading-error { color: #d29922; font-size: 14px; padding: 20px; text-align: center;}
+        
+        .help-text {
+            font-size: 13px;
+            color: #8b949e;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        kbd {
+            background-color: #21262d;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            box-shadow: inset 0 -1px 0 #30363d;
+        }
+
+        /* --- JSON Tree Styles --- */
+        .json-tree { font-family: 'Fira Code', monospace; font-size: 13px; line-height: 1.5; color: #c9d1d9; }
+        .json-node { margin-left: 12px; outline: none; border-left: 1px solid transparent; }
+        .json-node.focusable:focus > .json-node-header { background-color: rgba(88, 166, 255, 0.15); box-shadow: inset 2px 0 0 #58a6ff; }
+        
+        .json-node-header { padding: 4px 6px; cursor: pointer; display: flex; align-items: flex-start; border-radius: 4px; }
+        .json-node-header:hover { background-color: rgba(255,255,255,0.05); }
+        .json-node-body { display: none; border-left: 1px solid #30363d; margin-left: 8px; padding-left: 4px; }
+        .json-node.expanded > .json-node-body { display: block; }
+        
+        /* Individual JSON values styling based on type */
+        .json-leaf { margin-left: 20px; padding: 3px 6px; display: flex; align-items: flex-start; }
+        .json-key { color: #79c0ff; margin-right: 6px; white-space: nowrap; }
+        .json-string { color: #a5d6ff; word-break: break-all; white-space: pre-wrap; }
+        .json-number { color: #79c0ff; }
+        .json-boolean { color: #ff7b72; }
+        .json-null { color: #8b949e; font-style: italic; }
+
+        .json-node-header > .chevron {
+            font-size: 10px;
+            width: 14px;
+            display: inline-block;
+            text-align: center;
+            color: #8b949e;
+            transition: transform 0.1s;
+            margin-right: 4px;
+            margin-top: 3px;
+        }
+        .json-node.expanded > .json-node-header > .chevron {
+            transform: rotate(90deg);
+            color: #c9d1d9;
+        }
+        .json-summary { color: #8b949e; margin-left: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Execution Trace (Local)</h1>
+    
+    <div class="controls">
+        <label for="log-file-input" style="font-size: 14px; font-weight: 500;">Load JSONL File:</label>
+        <!-- Replaced backend server call with local file reader element -->
+        <input type="file" id="log-file-input" accept=".jsonl,.json,.txt" onchange="handleFileSelect(event)">
+    </div>
+    
+    <div class="help-text">
+        <span>Navigation Guide:</span>
+        <kbd>↑</kbd> <kbd>↓</kbd> Move Rows
+        <kbd>→</kbd> <kbd>←</kbd> Expand Row
+        <kbd>Enter</kbd> Dive into JSON body
+        <kbd>Esc</kbd> Exit JSON body
+    </div>
+    
+    <div id="logs-container">
+        <!-- Default State Message -->
+        <div class="loading-error" style="color: #8b949e">Please select a .jsonl file to view logs.</div>
+    </div>
+
+    <script>
+        // Track rendered log rows for keyboard navigation
+        let logRows = [];
+        
+        /**
+         * Triggered when the user selects a file using the <input type="file"> element.
+         * Reads the local file as text.
+         */
+        async function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const container = document.getElementById('logs-container');
+            container.innerHTML = '<div class="loading-error">Reading file...</div>';
+            logRows = [];
+            
+            const reader = new FileReader();
+
+            // When file is done loading, parse JSONL lines
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n').filter(line => line.trim() !== '');
+                
+                // Map text lines to parsed JSON objects, handling bad data
+                const logs = lines.map(line => {
+                    try {
+                        return JSON.parse(line);
+                    } catch (err) {
+                        return { error: 'Failed to parse line', raw: line };
+                    }
+                });
+
+                renderLogs(logs);
+            };
+
+            reader.onerror = function() {
+                container.innerHTML = `<div class="loading-error" style="color: #f85149">Error reading local file: ${reader.error}</div>`;
+            };
+
+            reader.readAsText(file);
+        }
+
+        // --- JSON TREE BUILDER ---
+        
+        /**
+         * Recursively constructs the DOM elements for displaying nested JSON structures.
+         * Arrays and Objects become expandable containers.
+         */
+        function createJSONView(data, key) {
+            // Leaf node: Strings, null, numbers, booleans
+            if (data === null || typeof data !== 'object') {
+                const leaf = document.createElement('div');
+                leaf.className = 'json-leaf';
+                
+                let valStr, valClass;
+                if (data === null) { valStr = 'null'; valClass = 'json-null'; }
+                else if (typeof data === 'boolean') { valStr = data; valClass = 'json-boolean'; }
+                else if (typeof data === 'number') { valStr = data; valClass = 'json-number'; }
+                else if (typeof data === 'string') {
+                    // Prettify strings and handle unescaped HTML characters
+                    const safeStr = data.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\\n/g, '\n');
+                    valStr = safeStr;
+                    valClass = 'json-string';
+                }
+                
+                leaf.innerHTML = `<span class="json-key">${key}:</span><span class="${valClass}">${valStr}</span>`;
+                return leaf;
+            }
+            
+            // Branch node: Arrays and Objects
+            const isArray = Array.isArray(data);
+            const keys = Object.keys(data);
+            
+            const node = document.createElement('div');
+            node.className = 'json-node focusable'; 
+            node.tabIndex = -1; // Allows script-managed focus for keyboard navigation
+            
+            const header = document.createElement('div');
+            header.className = 'json-node-header';
+            
+            const summary = isArray ? `[ ${keys.length} items ]` : `{ ${keys.length} keys }`;
+            header.innerHTML = `<span class="chevron">▶</span><span class="json-key">${key}:</span><span class="json-summary">${summary}</span>`;
+            
+            const body = document.createElement('div');
+            body.className = 'json-node-body';
+            
+            // Populate children deeper into the tree
+            for (const k of keys) {
+                body.appendChild(createJSONView(data[k], k));
+            }
+            
+            node.appendChild(header);
+            node.appendChild(body);
+            
+            header.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent outer clicks from also toggling when zooming inside properties
+                node.classList.toggle('expanded');
+                node.focus();
+            });
+            
+            return node;
+        }
+
+        /**
+         * Creates a master container row for a given root log entry.
+         */
+        function createRow(timestamp, type, summary, bodyContentOrNode, isError = false) {
+            const row = document.createElement('div');
+            row.className = 'log-row';
+            row.tabIndex = 0; 
+            
+            // Badge color logic
+            let badgeClass = '';
+            if (isError) badgeClass = 'error';
+            else if (type.toLowerCase().includes('event') || type.toLowerCase().includes('message')) badgeClass = 'event';
+            else if (type.toLowerCase().includes('request') || type.toLowerCase().includes('http')) badgeClass = 'request';
+            
+            const timeStr = timestamp ? new Date(timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit', fractionalSecondDigits: 3}) : '';
+
+            const header = document.createElement('div');
+            header.className = 'log-header';
+            header.innerHTML = `
+                <span class="chevron">▶</span>
+                <span class="type-badge ${badgeClass}">${type}</span>
+                <span class="summary-text">${summary}</span>
+                <span class="timestamp">${timeStr}</span>
+            `;
+            
+            const body = document.createElement('div');
+            body.className = 'log-body';
+            
+            // Attach raw text or the JSON Node Tree to the Body
+            if (typeof bodyContentOrNode === 'string') {
+                const pre = document.createElement('pre');
+                pre.innerHTML = bodyContentOrNode;
+                body.appendChild(pre);
+            } else if (bodyContentOrNode instanceof HTMLElement) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'json-tree';
+                wrapper.appendChild(bodyContentOrNode);
+                body.appendChild(wrapper);
+            }
+            
+            row.appendChild(header);
+            row.appendChild(body);
+            
+            header.addEventListener('click', () => {
+                row.classList.toggle('expanded');
+                row.focus(); 
+            });
+            
+            return row;
+        }
+
+        /**
+         * Iterates through the raw log lines to mount elements to the page.
+         * Includes an aggregator for message delta streams.
+         */
+        function renderLogs(logs) {
+            const container = document.getElementById('logs-container');
+            container.innerHTML = ''; 
+            logRows = [];
+
+            let groupedText = "";
+            let groupMetadata = null;
+
+            // Collect streamed text chunks into a single UI row to prevent flooding
+            const flushGroup = () => {
+                if (!groupMetadata) return;
+                
+                const safeText = groupedText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                const summary = safeText.substring(0, 100).replace(/\n/g, ' ') + (safeText.length > 100 ? '...' : '');
+                
+                const row = createRow(
+                    groupMetadata.timestamp, 
+                    'MESSAGE_DELTA', 
+                    '[Aggregated Stream] ' + (summary || '(empty)'),
+                    safeText
+                );
+                
+                container.appendChild(row);
+                logRows.push(row);
+                
+                groupedText = "";
+                groupMetadata = null;
+            };
+
+            for (const log of logs) {
+                let isDeltaChunk = false;
+                
+                // Check if the current log is a partial streaming chunk being streamed
+                if (!log.error && log.type === 'event' && Array.isArray(log.payload) && log.payload.length > 0) {
+                    const evt = log.payload[0]?.event;
+                    if (evt?.type === 'message.part.delta') {
+                        isDeltaChunk = true;
+                        if (!groupMetadata) groupMetadata = { timestamp: log.timestamp };
+                        groupedText += evt.properties?.delta || '';
+                    }
+                }
+
+                if (!isDeltaChunk) {
+                    flushGroup();
+                    
+                    if (log.error) {
+                         const row = createRow(log.timestamp, 'PARSE_ERROR', 'Failed to decode log line payload', log.raw, true);
+                         container.appendChild(row);
+                         logRows.push(row);
+                    } else {
+                         let typeLabel = log.type;
+                         let summaryStr = "";
+                         
+                         if (log.type === 'event' && log.payload?.[0]?.event?.type) {
+                             typeLabel = log.payload[0].event.type;
+                         }
+
+                         try {
+                            const payloadStr = JSON.stringify(log.payload);
+                            summaryStr = payloadStr.substring(0, 120) + (payloadStr.length > 120 ? '...' : '');
+                         } catch (e) {
+                             summaryStr = "{ ... }";
+                         }
+
+                         const jsonNode = createJSONView(log.payload, 'payload');
+                         // Default to expanding the top-level payload structure
+                         jsonNode.classList.add('expanded');
+
+                         const row = createRow(log.timestamp, typeLabel, summaryStr, jsonNode);
+                         container.appendChild(row);
+                         logRows.push(row);
+                    }
+                }
+            }
+            
+            flushGroup(); // Flush trailing stream data, if applicable
+
+            if (logRows.length === 0) {
+                container.innerHTML = '<div class="loading-error" style="color: #8b949e">No log entries found in file.</div>';
+            }
+        }
+
+        // --- GLOBAL KEYBOARD ACCESSIBILITY LOGIC ---
+        // Allows exploring records quickly with arrow keys and enter
+        document.addEventListener('keydown', (e) => {
+            if (logRows.length === 0) return;
+            
+            const activeEl = document.activeElement;
+            const isRow = activeEl?.classList.contains('log-row');
+            const isJsonNode = activeEl?.classList.contains('json-node');
+
+            if (!isRow && !isJsonNode) {
+                // Bootstrapping focus to the first row of logs 
+                if (['ArrowDown', 'ArrowRight', 'ArrowLeft'].includes(e.key)) {
+                    e.preventDefault();
+                    if (logRows[0]) logRows[0].focus();
+                }
+                return;
+            }
+
+            // Block default scroll behaviors for navigation keys
+            if (['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft', 'Enter', 'Escape', ' '].includes(e.key)) {
+                e.preventDefault();
+            } else {
+                return;
+            }
+
+            // High-level navigation across records
+            if (isRow) {
+                let index = logRows.indexOf(activeEl);
+                if (e.key === 'ArrowDown' && index < logRows.length - 1) {
+                    logRows[index + 1].focus();
+                } else if (e.key === 'ArrowUp' && index > 0) {
+                    logRows[index - 1].focus();
+                } else if (e.key === 'ArrowRight' || e.key === ' ') {
+                    activeEl.classList.add('expanded');
+                } else if (e.key === 'ArrowLeft') {
+                    activeEl.classList.remove('expanded');
+                } else if (e.key === 'Enter') {
+                    // Navigate from row container down into JSON node inspector
+                    activeEl.classList.add('expanded'); 
+                    const firstNode = activeEl.querySelector('.json-node.focusable');
+                    if (firstNode) firstNode.focus(); 
+                }
+            } 
+            // Fine-grained traversal down JSON properties inside an expanded record
+            else if (isJsonNode) {
+                if (e.key === 'Escape') {
+                    activeEl.closest('.log-row').focus();
+                } else if (e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === 'Enter' || e.key === ' ') activeEl.classList.toggle('expanded');
+                    else activeEl.classList.add('expanded');
+                } else if (e.key === 'ArrowLeft') {
+                    if (activeEl.classList.contains('expanded')) {
+                        activeEl.classList.remove('expanded');
+                    } else {
+                        const parent = activeEl.parentElement.closest('.json-node.focusable');
+                        if (parent) parent.focus();
+                        else activeEl.closest('.log-row').focus();
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    const row = activeEl.closest('.log-row');
+                    const nodes = Array.from(row.querySelectorAll('.json-node.focusable'));
+                    const visibleNodes = nodes.filter(n => {
+                        let p = n.parentElement.closest('.json-node');
+                        while(p) {
+                            if (!p.classList.contains('expanded')) return false;
+                            p = p.parentElement.closest('.json-node');
+                        }
+                        return true;
+                    });
+                    const idx = visibleNodes.indexOf(activeEl);
+                    if (idx !== -1 && idx < visibleNodes.length - 1) visibleNodes[idx + 1].focus();
+                } else if (e.key === 'ArrowUp') {
+                    const row = activeEl.closest('.log-row');
+                    const nodes = Array.from(row.querySelectorAll('.json-node.focusable'));
+                    const visibleNodes = nodes.filter(n => {
+                        let p = n.parentElement.closest('.json-node');
+                        while(p) {
+                            if (!p.classList.contains('expanded')) return false;
+                            p = p.parentElement.closest('.json-node');
+                        }
+                        return true;
+                    });
+                    const idx = visibleNodes.indexOf(activeEl);
+                    if (idx > 0) visibleNodes[idx - 1].focus();
+                    else activeEl.closest('.log-row').focus();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

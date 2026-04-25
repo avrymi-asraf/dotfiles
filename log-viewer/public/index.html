@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent System Logs</title>
+    <style>
+        body { font-family: monospace; background-color: #1e1e1e; color: #d4d4d4; padding: 20px; }
+        .log-entry { margin-bottom: 20px; border: 1px solid #333; padding: 15px; border-radius: 5px; }
+        .timestamp { color: #569cd6; font-weight: bold; margin-bottom: 5px; display: block; }
+        .type { color: #ce9178;  display: block; margin-bottom: 10px; }
+        pre { background-color: #252526; padding: 10px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; }
+        .error { color: #f48771; }
+    </style>
+</head>
+<body>
+    <h1>Agent System Logs</h1>
+    <div id="logs-container">Loading logs...</div>
+
+    <script>
+        async function fetchLogs() {
+            try {
+                const response = await fetch('/api/logs');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const logs = await response.json();
+                renderLogs(logs);
+            } catch (error) {
+                document.getElementById('logs-container').innerHTML = `<p class="error">Error loading logs: ${error.message}</p>`;
+            }
+        }
+
+        function renderLogs(logs) {
+            const container = document.getElementById('logs-container');
+            container.innerHTML = ''; // Clear loading message
+
+            logs.forEach(log => {
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'log-entry';
+
+                if (log.error) {
+                    entryDiv.innerHTML = `<span class="error">Parse Error:</span> <pre>${log.raw}</pre>`;
+                } else {
+                    entryDiv.innerHTML = `
+                        <span class="timestamp">${new Date(log.timestamp).toLocaleString()}</span>
+                        <span class="type">Type: ${log.type}</span>
+                        <pre>${JSON.stringify(log.payload, null, 2).replace(/\\n/g, '\n')}</pre>
+                    `;
+                }
+
+                container.appendChild(entryDiv);
+            });
+        }
+
+        fetchLogs();
+    </script>
+</body>
+</html>

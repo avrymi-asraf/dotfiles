@@ -8,8 +8,7 @@ const PORT = 3000;
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/logs', (req, res) => {
-  const filename = req.query.file || 'opencode-debug-with-events.jsonl';
-  const logPath = path.join(__dirname, '..', 'references', filename);
+  const logPath = path.join(__dirname, '..', 'opencode-debug.jsonl');
   
   if (!fs.existsSync(logPath)) {
     return res.status(404).json({ error: 'Log file not found' });
