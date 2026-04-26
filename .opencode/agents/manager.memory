@@ -1,150 +1,85 @@
 # Manager Memory
 
 ## Current Task
-Create a professional MCP server that converts PDFs to Markdown using LLM providers Google and Ollama, with strong extraction of all text, equations, and tables, and with uniform equation presentation.
+Create project-local documentation and a skill that demonstrate the repository's required agent workflow and explain how to install/use the system per project in OpenCode, VS Code, and Codex. The system includes agents, MCP servers, skills, and agent memory. User explicitly requires project-local setup only: no user-level or global settings. User also explicitly requires web research rather than assumptions for any unknown OpenCode/VS Code/Codex setup details.
 
 ## Current Status
-- Step 1 completed: relevant skills and existing MCP patterns inspected.
-- Step 2 completed: repository layout/config inspected and placement recommendation recorded.
-- Wiki queried before handoff; wiki has no `data-place` pages for this task.
-- Relevant repository knowledge from skills includes: `manage-mcp`, `scripts`, `gemini-deep-research`, `manage-skills`, and `agent-and-skill-improvement`.
-- Existing MCP example is `skills/gemini-deep-research/mcp-server.py`; no PDF/Ollama/document-conversion skill or MCP example was found.
-- Step 3 completed: MCP architecture and conversion pipeline designed.
-- Step 4 completed: implemented the PDF-to-Markdown MCP server, skill documentation, and mocked unit tests.
-- Step 5 completed: focused tests passed without launching a persistent MCP server.
-- Step 6 completed: final review/docs summary done; no persistent MCP server started, no `opencode.json` edits made during review, and no secrets printed or copied.
-- Final post-completion Data-Wiki ingest completed after final review. Data-Wiki created/updated `data-place/wiki/index.md`, `data-place/wiki/log.md`, `data-place/wiki/sources/pdf-to-markdown-mcp-implementation.md`, `data-place/wiki/concepts/pdf-to-markdown-mcp.md`, `data-place/wiki/entities/google-gemini.md`, `data-place/wiki/entities/ollama.md`, and `manager.memory.md`.
-- Implementation is complete, tests passed, and final response is ready. Wiki files are additional changes created by Data-Wiki after final review.
-- Next step: decide whether to manually register the MCP locally with placeholder-to-real private env values, then run a live conversion smoke test against Google and/or a local Ollama vision model if credentials/services are available.
-- Do **not** perform implementation until steps 1-3 are completed and conventions/design are clear.
+- Session started by reading this memory and querying Data-Wiki.
+- Data-Wiki contains only prior PDF-to-Markdown MCP knowledge; it has no existing general knowledge for VS Code, Codex, general OpenCode setup, agent memory patterns, or repository README conventions.
+- New task plan written 2026-04-26 before implementation.
+- Step 1 completed by Operator: repository inspected read-only; no changes made except this memory file.
+- Step 1 key findings: root `README.md` is minimal (`# dotfiles`); active project-local OpenCode agents/memory live under `.opencode/agents/`; root `agents/` appears older/portable; skills live under `skills/<name>/SKILL.md` with YAML frontmatter and concise operational docs; MCP servers live under skill directories as PEP 723 `uv` FastMCP scripts; `opencode.json` may contain secrets and must not be copied; `.vscode/` does not exist while `vscode/` contains user-style snippets; `.codex` exists but is empty; memory naming is inconsistent (`.memory` active under `.opencode/agents/`, `.memory.md` in some docs/root files), so final docs must explain the repo-local convention carefully after research.
+- Step 2 completed by Operator/researcher: official web docs researched for OpenCode, VS Code/Copilot, and Codex; no files changed.
+- Step 2 verified per-project setup: OpenCode supports `opencode.json`, `AGENTS.md`/instructions, `.opencode/agents/*.md`, `.opencode/skills/*/SKILL.md`, and project-local MCP entries in `opencode.json`; VS Code/Copilot supports `.github/copilot-instructions.md`, `.github/instructions/**/*.instructions.md`, `.github/prompts/**/*.prompt.md`, `.github/agents/*.agent.md`, `.github/skills/*/SKILL.md`, and `.vscode/mcp.json`; Codex supports `AGENTS.md`, `AGENTS.override.md`, trusted `.codex/config.toml` with `[mcp_servers.<name>]`, and `.agents/skills/*/SKILL.md`.
+- Step 2 warnings: official OpenCode memory file support for `.opencode/agents/*.memory` was not found; official support for top-level `skills/<name>/SKILL.md` as platform-native project skill was not verified; VS Code `vscode/` directory is not verified as workspace customization; current empty `.codex` file conflicts with documented `.codex/config.toml` directory layout if Codex config is added. Final docs must distinguish repo-local source-of-truth skill/MCP files from platform-native mirror locations.
+- Step 3 completed by Operator: proposed minimal documentation-only implementation with no active platform config creation. Approved actual edits: update `README.md`, add `docs/project-local-agent-system-example.md`, add `skills/project-local-agent-systems/SKILL.md`. Avoid creating `.github/`, `.vscode/`, `.codex/`, `.agents/`, `.opencode/skills/`, `AGENTS.md`, `AGENTS.override.md`, or editing `opencode.json` because those could activate behavior or conflict with existing `.codex` file/secrets.
+- Step 4 completed by Operator: implemented approved docs-only changes. Changed files: `README.md`, `docs/project-local-agent-system-example.md`, `skills/project-local-agent-systems/SKILL.md`. Operator reports no active platform config files/directories were created or edited, `opencode.json` was not touched, examples are placeholder-only, and the new skill is 116 lines under the 300-line limit.
+- Step 5 completed by Operator: verified docs and made one required fix in `README.md` to remove wording that allowed user/global settings "unless a project explicitly asks"; wording now strictly requires project/workspace-local only. `git diff --check` passed for changed docs/skill; no markdownlint/mdl/vale tools installed, so manual review was used. Secret-pattern scan found no suspicious secret values; snippets are placeholder-only; skill frontmatter valid and 116 lines. Current status includes task changes plus unrelated/pre-existing `opencode.json` modification and this memory file. `.opencode/skills/` exists empty/untracked, likely pre-existing but Git cannot prove.
+- Step 6 completed by Data-Wiki: created/updated wiki pages for project-local agent systems and logged the task in `.opencode/agents/operator.memory`.
+- Final status: User-requested docs/skill work complete. Main deliverables are `README.md`, `docs/project-local-agent-system-example.md`, and `skills/project-local-agent-systems/SKILL.md`. Additional wiki/memory files changed by process: `data-place/wiki/sources/project-local-agent-system-docs.md`, `data-place/wiki/concepts/project-local-agent-systems.md`, `data-place/wiki/entities/opencode.md`, `data-place/wiki/entities/vscode-github-copilot.md`, `data-place/wiki/entities/openai-codex.md`, `data-place/wiki/index.md`, `data-place/wiki/log.md`, `.opencode/agents/operator.memory`, and this `.opencode/agents/manager.memory`. Pre-existing/unrelated `opencode.json` remains modified and may contain secrets; it was not printed or copied. No commit was made.
 
 ## Task Plan
 
-### 1. Read skills and existing MCP/server patterns
-**Goal:** Read all relevant skills and inspect existing MCP/server patterns in the repository.
+### Goal
+Add a small demonstrative file, README installation guide, and new skill that document/teach the per-project agent/MCP/skills/memory workflow for OpenCode, VS Code, and Codex, based on repository inspection and verified external documentation where needed.
 
-**Success criteria:** Identify applicable conventions from `manage-mcp`, `scripts`, Google/Gemini examples, and any related skill files; report exact files read and key constraints.
-
-**Status:** Completed 2026-04-26 by Operator.
-
-**Findings:** MCP servers should be single-file `uv` scripts with PEP 723 inline dependencies, a single `FastMCP` instance with clear instructions, focused tools returning `str`, explicit validation/error strings, minimal dependencies, private helpers grouped before tools, and `if __name__ == "__main__": mcp.run()`. Do not start MCP servers just to test. `scripts` reinforces minimal dependencies, `uv run`, no secrets in code, and clear one-command usage. `gemini-deep-research` requires `GOOGLE_API_KEY`, optional `GEMINI_API_BASE_URL`, uses `httpx`, environment-based config, JSON string responses, and wraps provider/API failures as `Error: ...`.
-
-**Warnings:** `opencode.json` currently contains literal API keys for Context7 and Google; do not copy them into new files or examples. External provider tests should be mocked unless credentials/services are explicitly available. No existing PDF/Ollama-specific skill exists.
-
+### Step 1. Inspect repository conventions and current files
+**Task:** Have Operator inspect repository layout, README(s), existing agent/skill/MCP/memory files, and relevant configs without making changes.
 **Dependencies:** None.
+**Success criteria:** Report exact files/paths inspected, current documentation style, existing conventions for skills/MCP/agents/memory, candidate files to edit/add, and any sensitive/local files that must not be copied.
+**Status:** Completed 2026-04-26 by Operator. Inspected root README, `.opencode/`, `agents/`, `skills/`, MCP examples, VS Code snippets, empty `.codex`, gitignore/status, and structurally inspected `opencode.json` with values redacted. Candidate changes are `README.md`, a small demo under `docs/` or `examples/`, and a new skill under `skills/project-local-agent-workflow/` or similar.
+**Risks:** Secrets may exist in local configs; fallback is to report only file paths/keys/patterns and never copy values.
 
-**Risks:** A relevant skill may be missed.
+### Step 2. Research per-project setup for OpenCode, VS Code, and Codex
+**Task:** Have Operator or research subagent use the internet and official docs where possible to verify how to configure agents, MCP, skills/instructions, and memory per project for OpenCode, VS Code, and Codex.
+**Dependencies:** Step 1 can inform repository-specific terms, but web research may proceed after Step 1 review.
+**Success criteria:** Provide cited URLs, distinguish confirmed facts from unknown/unsupported features, and explicitly identify project-local config files/approaches only. Must flag anything that appears user/global-only as disallowed for this task.
+**Status:** Completed 2026-04-26 by Operator/researcher using official docs. Key URLs consulted include opencode.ai docs for config/agents/rules/MCP/skills; VS Code docs for Copilot custom instructions, prompt files, custom agents, agent skills, MCP servers; OpenAI Codex docs for CLI/config/reference/AGENTS/MCP/skills.
+**Risks:** Documentation may be incomplete or products may not support a feature per-project; fallback is to document only verified alternatives and clearly say when not supported instead of inventing.
 
-**Fallback:** Search skills by names/keywords for MCP, script, PDF, Gemini, Ollama, Markdown.
-
-### 2. Inspect repository layout and configuration
-**Goal:** Decide where the new MCP should live and how it should be registered or documented.
-
-**Success criteria:** Recommend exact file path(s), with no code changes yet.
-
-**Status:** Completed 2026-04-26 by Operator.
-
-**Findings:** Top-level `skills/` is the established home for durable skill/MCP packages. The only local MCP implementation is colocated as `skills/gemini-deep-research/mcp-server.py` with a companion `SKILL.md` and an example JSON. `.opencode/skills/` is empty and not the right place for this repo's source skill. No global Python project config, pytest config, `tests/`, or `fixtures/` directories were found. `opencode.json` is gitignored and contains sensitive provider credentials; do not copy values or commit them.
-
-**Recommendation:** Create the new MCP under a new skill directory: `skills/pdf-to-markdown-mcp/mcp-server.py`, with `skills/pdf-to-markdown-mcp/SKILL.md` documenting requirements, run command, exposed tools, provider env vars, and manual registration. If tests are added, colocate them under `skills/pdf-to-markdown-mcp/tests/` and fixtures under `skills/pdf-to-markdown-mcp/fixtures/` because no repository-wide test convention exists. If examples are useful, add sanitized sample outputs only; no real API data or secrets.
-
-**Registration guidance:** Do not edit `opencode.json` during implementation unless explicitly requested, because it is gitignored and currently stores local sensitive values. Instead document a manual local registration entry using `type: local`, `command: ["uv", "run", "skills/pdf-to-markdown-mcp/mcp-server.py"]`, `enabled: true`, and an `environment` block listing variable names only, with placeholder values.
-
-**Dependencies:** Step 1.
-
-**Risks:** Secrets may be visible in config.
-
-**Fallback:** Do not copy secrets and avoid config edits unless needed.
-
-### 3. Design the MCP architecture and conversion pipeline
-**Goal:** Produce a concise design before implementation.
-
-**Success criteria:** Cover FastMCP tool interface, provider abstraction for Google and Ollama, PDF page rendering/text extraction strategy, equation/table normalization rules, chunking/verification passes, error handling, and test strategy.
-
-**Status:** Completed 2026-04-26 by Operator.
-
-**Key design decisions:** Implement `skills/pdf-to-markdown-mcp/mcp-server.py` as a single FastMCP/uv PEP 723 script exposing one focused conversion tool, `convert_pdf_to_markdown`, returning JSON as `str`. Inputs include `pdf_path`, `provider` (`google`/`ollama`), optional `model`, `pages`, `output_mode`, `include_page_markers`, `completeness_check`, `render_dpi`, `max_pages`, `timeout_seconds`, and optional prompt notes. Use PyMuPDF (`pymupdf`) for PDF metadata/text extraction and page rendering; Pillow only if image handling requires it. Use `httpx` for Google/Ollama calls and `mcp[cli]` for FastMCP. Provider abstraction should hide `_generate(parts)` behind Google and Ollama clients, using env vars `GOOGLE_API_KEY`, optional `GEMINI_API_BASE_URL`, `PDF_TO_MD_GOOGLE_MODEL`, `OLLAMA_BASE_URL`, `PDF_TO_MD_OLLAMA_MODEL`, and timeout/page limits. Default models: Google `gemini-2.5-flash`, Ollama `llava:latest` or configured local vision model. Render selected PDF pages to PNG/base64 for visual fidelity and provide embedded text as context. Chunk by pages to stay within payload limits, then merge deterministically. Prompt contract requires exact reading order; all text, headings, captions, footnotes, equations, and tables; no invented content; inline equations as `$...$`; display equations as standalone `$$...$$` blocks with one blank line around them; multi-line equations use `\begin{aligned}...\end{aligned}` inside `$$`; preserve equation numbers with `\tag{}` where appropriate; simple tables as Markdown and complex/merged tables as HTML. Post-process with deterministic equation delimiter normalization, page marker insertion, conservative duplicate boundary merging, optional table whitespace normalization, and optional second-pass completeness check. Tests should mock provider HTTP calls and cover validation, page parsing, prompt construction, provider payload shape, equation normalization, merge behavior, JSON result schema, and failure strings; generate tiny PDFs for helper tests if feasible.
-
+### Step 3. Design the documentation and skill changes
+**Task:** Based on Steps 1-2, have Operator propose exact files and content outline before editing.
 **Dependencies:** Steps 1-2.
+**Success criteria:** Proposed README section location, new demonstration file path/content purpose, new skill path/name, and all platform-specific install guidance are reviewed before implementation.
+**Status:** Completed 2026-04-26 by Operator. Design selected docs-only low-risk changes: `README.md`, `docs/project-local-agent-system-example.md`, `skills/project-local-agent-systems/SKILL.md`; examples must remain placeholder-only and project-local.
+**Risks:** Scope may become too broad; fallback is to keep the demo file small and docs concise while linking to official docs.
 
-**Risks:** Provider APIs differ.
-
-**Fallback:** Isolate providers behind one interface and make the prompt contract provider-agnostic.
-
-### 4. Implement MCP server and supporting tests/fixtures
-**Goal:** Create/update files according to the approved design.
-
-**Success criteria:** Use minimal appropriate dependencies; include professional prompts requiring complete text/equation/table extraction and consistent display of equations; avoid secrets.
-
-**Status:** Completed 2026-04-26 by Operator.
-
-**Created files:** `skills/pdf-to-markdown-mcp/mcp-server.py`, `skills/pdf-to-markdown-mcp/SKILL.md`, and `skills/pdf-to-markdown-mcp/tests/test_mcp_server.py`. No fixture files were needed; tests generate tiny PDFs dynamically.
-
-**Implementation notes:** Server is a PEP 723 `uv` script using `FastMCP`, `httpx`, and `PyMuPDF`. It exposes `convert_pdf_to_markdown` with explicit typed parameters, validates PDF path/provider/pages/DPI/timeouts/max pages, rejects encrypted PDFs, extracts embedded text, renders PNG page images, calls Google `generateContent` with `inline_data` or Ollama `/api/generate` with `images` and `stream: false`, applies deterministic Markdown/equation/table post-processing outside fenced code blocks, supports optional completeness-check append, and returns JSON strings or `Error: ...`. Tests are deterministic and mock providers; full formal test execution remains Step 5.
-
+### Step 4. Implement docs, demo file, and skill
+**Task:** Have Operator edit/add files according to the approved design.
 **Dependencies:** Step 3.
+**Success criteria:** README includes project-local install/use guide for OpenCode, VS Code, Codex; small demonstration file shows required manager/operator/data-wiki workflow; new skill documents this workflow/setup; no user/global settings are recommended; no secrets are introduced.
+**Status:** Completed 2026-04-26 by Operator. Files changed: `README.md`, `docs/project-local-agent-system-example.md`, `skills/project-local-agent-systems/SKILL.md`. Needs Step 5 verification before final response.
+**Risks:** Accidentally recommending global/user config; fallback is to revise all examples to project-relative paths and workspace-local files only.
 
-**Risks:** PDF dependencies may be heavy or unavailable.
-
-**Fallback:** Use Python libraries available through `uv` metadata and keep provider calls mockable for tests.
-
-### 5. Run focused tests
-**Goal:** Validate behavior without launching a persistent MCP server unnecessarily.
-
-**Success criteria:** Tests pass and verify provider abstraction, equation normalization/consistency, table handling, prompt construction, and representative PDF conversion helpers with mocked LLMs.
-
-**Status:** Completed 2026-04-26 by Operator.
-
-**Commands/results:** Ran `uv run --with pytest --with 'mcp[cli]>=1.2.0' --with 'httpx>=0.27.0' --with 'pymupdf>=1.24.0' pytest 'skills/pdf-to-markdown-mcp/tests/test_mcp_server.py'`; initial result was 4 passed, 2 failed due equation normalization splitting compact `$$...$$` blocks. Fixed `_normalize_equations` to preserve display equation contents while still converting `\(...\)` and `\[...\]` outside fenced code. Re-ran the same focused pytest command; result was 6 passed. Also ran `python3 -m py_compile 'skills/pdf-to-markdown-mcp/mcp-server.py'` successfully.
-
-**Files modified during Step 5:** `skills/pdf-to-markdown-mcp/mcp-server.py` only.
-
-**Warnings/risks:** Tests use mocked providers and generated tiny PDFs, so they validate deterministic helper behavior and payload shape but not live Google/Ollama quality or provider availability.
-
+### Step 5. Verify changes
+**Task:** Have Operator review git diff and run any appropriate lightweight validation, such as markdown/link sanity checks if available, without committing.
 **Dependencies:** Step 4.
+**Success criteria:** Report changed files, verification commands/results, confirmation of no secrets and no global/user-level setup instructions, and any unresolved uncertainties.
+**Status:** Completed 2026-04-26 by Operator. Validation passed after README wording fix. Changed task files: `README.md`, `docs/project-local-agent-system-example.md`, `skills/project-local-agent-systems/SKILL.md`; memory also changed by Manager. Unrelated `opencode.json` remains modified and was not inspected/printed.
+**Risks:** No markdown tooling may exist; fallback is manual review plus git diff summary.
 
-**Risks:** External LLMs unavailable.
-
-**Fallback:** Mock HTTP calls and test deterministic helper behavior.
-
-### 6. Final review and documentation summary
-**Goal:** Confirm deliverables and document usage.
-
-**Success criteria:** Confirm changed files, test commands/results, usage instructions, environment variables for Google/Ollama, known limitations, and ensure no secrets were introduced.
-
-**Status:** Completed 2026-04-26 by Operator.
-
-**Changed files for this implementation:** `skills/pdf-to-markdown-mcp/mcp-server.py`, `skills/pdf-to-markdown-mcp/SKILL.md`, and `skills/pdf-to-markdown-mcp/tests/test_mcp_server.py`. Generated `__pycache__` artifacts found during final review were removed. Repository still has unrelated pre-existing working-tree changes, including `opencode.json`, but final review did not edit that config and the new PDF MCP files contain only placeholder/test key strings, not real secrets.
-
-**Test results:** Focused command previously run and passed: `uv run --with pytest --with 'mcp[cli]>=1.2.0' --with 'httpx>=0.27.0' --with 'pymupdf>=1.24.0' pytest 'skills/pdf-to-markdown-mcp/tests/test_mcp_server.py'` => 6 passed. Syntax check previously passed: `python3 -m py_compile 'skills/pdf-to-markdown-mcp/mcp-server.py'`. No full rerun was needed during final review because only generated cache artifacts were removed.
-
-**Usage:** Manual run command is `uv run skills/pdf-to-markdown-mcp/mcp-server.py`. Tool is `convert_pdf_to_markdown(pdf_path, provider='google'|'ollama', model=None, pages=None, include_page_markers=True, completeness_check=False, render_dpi=180, max_pages=None, timeout_seconds=None, extra_instructions=None)`. Success returns a JSON string with `ok`, provider/model/path/page counts/pages/Markdown/warnings/stats; failures return `Error: ...`.
-
-**Environment variables:** Google requires `GOOGLE_API_KEY`; optional Google env vars are `GEMINI_API_BASE_URL` and `PDF_TO_MD_GOOGLE_MODEL` (default `gemini-2.5-flash`). Ollama requires a local Ollama service with a vision model; optional env vars are `OLLAMA_BASE_URL` (default `http://localhost:11434`) and `PDF_TO_MD_OLLAMA_MODEL` (default `llava:latest`).
-
-**Manual MCP registration snippet, placeholders only:** Use a private config entry with `type: local`, command `['uv', 'run', 'skills/pdf-to-markdown-mcp/mcp-server.py']`, `enabled: true`, and environment placeholders such as `GOOGLE_API_KEY: '<your-google-api-key>'`, `PDF_TO_MD_GOOGLE_MODEL: 'gemini-2.5-flash'`, `OLLAMA_BASE_URL: 'http://localhost:11434'`, `PDF_TO_MD_OLLAMA_MODEL: 'llava:latest'`. Do not commit real values.
-
-**Quality features:** PyMuPDF embedded text extraction plus rendered PNG page images; strict prompt requires all visible text in reading order, equations, symbols, captions, footnotes, references, annotations, table captions/notes/units, and `[illegible]` for unreadable visible content; equation normalization converts `\(...\)` to `$...$` and `\[...\]` to `$$...$$` outside fenced code; display equations are required as blank-line-separated `$$...$$`, aligned math inside `\begin{aligned}...\end{aligned}`, equation numbers with `\tag{...}`; simple tables are Markdown, complex/merged-cell tables are HTML; optional completeness-check pass appends provider-identified missing visible content.
-
-**Known limitations/open questions:** Live extraction quality depends on the selected vision model and prompt adherence; mocked tests do not validate live Google/Ollama behavior or OCR quality on complex PDFs; very large PDFs may need `pages`/`max_pages` to control runtime/cost; password-protected PDFs are rejected; completeness check can only append model-identified missing content and cannot guarantee perfection; user should choose/verify the best Ollama local vision model for their hardware.
-
-**Critical fixes during final review:** Removed generated Python `__pycache__` artifacts only. No source logic/doc changes were required.
-
+### Step 6. Ingest final knowledge into Data-Wiki
+**Task:** Have Data-Wiki ingest the verified platform setup findings and repository workflow conventions.
 **Dependencies:** Step 5.
-
-**Risks:** Coverage may be incomplete.
-
-**Fallback:** Add missing tests/docs before final response.
+**Success criteria:** Wiki pages updated/created with concise knowledge, citations or source references where applicable, and no secrets.
+**Status:** Completed 2026-04-26 by Data-Wiki. Created/updated `data-place/wiki/sources/project-local-agent-system-docs.md`, `data-place/wiki/concepts/project-local-agent-systems.md`, `data-place/wiki/entities/opencode.md`, `data-place/wiki/entities/vscode-github-copilot.md`, `data-place/wiki/entities/openai-codex.md`, `data-place/wiki/index.md`, and `data-place/wiki/log.md`; Data-Wiki also logged in `.opencode/agents/operator.memory`.
+**Risks:** Ingestion may include too much transient detail; fallback is to record stable conventions and links only.
 
 ## Key Constraints
-- Do not modify project implementation files until the plan reaches the implementation step.
-- Do not introduce secrets or copy secrets from existing config.
-- Follow repository MCP/server conventions discovered from skills and existing files.
-- Use mocks for tests where external Google/Ollama services are unavailable.
+- Work one delegated step at a time: plan, delegate, review, update memory, revise plan, then continue.
+- Do not implement before repository inspection and web research establish facts.
+- No user-level or global settings in final instructions; everything must be per-project/workspace-local.
+- Do not assume OpenCode, VS Code, or Codex behavior. Use official docs/web research and mark unsupported/unknown features clearly.
+- Do not expose or copy secrets from local configs such as `opencode.json`.
+- Do not commit unless explicitly requested.
 
 ## Historical Notes
 
+### Completed prior task: PDF-to-Markdown MCP
+- Created `skills/pdf-to-markdown-mcp/mcp-server.py`, `skills/pdf-to-markdown-mcp/SKILL.md`, and focused tests.
+- Tests passed with mocked providers; live provider testing remains optional.
+- Wiki has prior pages about this implementation and provider environment variables.
+
 ### Completed prior task: opencode runtime hooks skill improvement
 - Analyzed debug JSONL files with and without event hook enabled.
-- Documented the distinction between hooks and events: hooks are top-level interception points and can mutate outputs; events are read-only runtime notifications nested under `type: "event"` when the event hook is enabled.
-- Updated `skills/opencode-runtime-hooks/` documentation, including comprehensive hook/event payload references and runtime sequence notes.
+- Documented distinction between hooks and events in `skills/opencode-runtime-hooks/`.

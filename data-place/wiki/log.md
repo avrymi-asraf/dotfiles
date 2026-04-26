@@ -1,5 +1,12 @@
 # Data Wiki Log
 
+## [2026-04-26] ingest | Project-local agent system documentation
+
+- Added source summary: [Project-local agent system documentation](sources/project-local-agent-system-docs.md).
+- Added concept synthesis: [Project-local agent systems](concepts/project-local-agent-systems.md).
+- Added platform entity pages: [OpenCode](entities/opencode.md), [VS Code / GitHub Copilot](entities/vscode-github-copilot.md), and [OpenAI Codex](entities/openai-codex.md).
+- Recorded project/workspace-local-only setup rules, verified platform-local paths, source-vs-platform-native skill conventions, and caveats without copying secrets or real credential values.
+
 ## [2026-04-26] ingest | PDF-to-Markdown MCP implementation
 
 - Created the initial `data-place/wiki/` structure because no wiki existed in the repository.
