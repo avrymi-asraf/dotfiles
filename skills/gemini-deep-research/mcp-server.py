@@ -141,30 +141,29 @@ def _build_interaction_payload(
     if file_search_stores:
         tools.append({"type": "file_search", "file_search_store_names": file_search_stores})
 
-    agent_config: dict[str, Any] = {"type": "deep-research"}
+    merged_prompt = prompt
     if additional_instructions:
-        agent_config["instructions"] = additional_instructions.strip()
+        instructions = additional_instructions.strip()
+        merged_prompt = f"{instructions}\n\n{prompt}"
 
+    input_parts: list[dict[str, Any]] = [
+        {
+            "type": "text",
+            "text": merged_prompt,
+        }
+    ]
     if file_uris:
-        agent_config["files"] = [{"uri": uri} for uri in file_uris]
+        for uri in file_uris:
+            input_parts.append({"type": "document", "uri": uri})
 
     payload: dict[str, Any] = {
         "agent": agent,
         "background": True,
-        "input": [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "input_text",
-                        "text": prompt,
-                    }
-                ],
-            }
-        ],
+        "input": input_parts,
         "tools": tools,
-        "agent_config": agent_config,
+        "agent_config": {"type": "deep-research"},
     }
+
     return payload
 
 

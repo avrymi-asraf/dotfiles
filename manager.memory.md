@@ -1,129 +1,64 @@
 # Manager Memory
 
 ## Current Task
-Improve the `opencode-runtime-hooks` skill by analyzing the two debug JSONL files and creating clear documentation about:
-1. The flow of running an agent (what happens step-by-step)
-2. What hooks and events fire at every stage
-3. What payloads exist in every hook/event
-4. How each payload can be changed/mutated
+Maintain repository knowledge in `data-place/wiki/` and record durable implementation knowledge for completed MCP tools.
 
-## Analysis Completed
+## Recent Data-Wiki Ingest (2026-04-26)
+- Created initial `data-place/wiki/` structure when none existed.
+- Ingested the completed PDF-to-Markdown MCP knowledge into:
+  - `data-place/wiki/index.md`
+  - `data-place/wiki/log.md`
+  - `data-place/wiki/sources/pdf-to-markdown-mcp-implementation.md`
+  - `data-place/wiki/concepts/pdf-to-markdown-mcp.md`
+  - `data-place/wiki/entities/google-gemini.md`
+  - `data-place/wiki/entities/ollama.md`
+- Security convention recorded: never copy real secrets from `opencode.json`; MCP registration examples must use placeholders only.
 
-### Files Read
-- `skills/opencode-runtime-hooks/SKILL.md` - main skill file (283 lines)
-- `skills/opencode-runtime-hooks/references/runtime-sequence.md` - event sequencing reference
-- `skills/opencode-runtime-hooks/references/hooks-reference.md` - hook signatures reference
-- `skills/opencode-runtime-hooks/examples/README.md` - examples index
-- `skills/opencode-runtime-hooks/examples/opencode/*.ts` - example plugins
-- `skills/opencode-runtime-hooks/references/opencode-debug-with-events.jsonl` - debug log WITH event hook enabled
-- `skills/opencode-runtime-hooks/references/opencode-debug-no-events.jsonl` - debug log WITHOUT event hook
-- `.opencode/plugins/all-events.ts.nu` - the plugin that generated the logs
+## Prior Task
+Fix the `skills/gemini-deep-research/mcp-server.py` MCP server which was making incorrect API calls to Gemini's Deep Research Interactions API.
 
-### Key Discovery: Hooks vs Events
-The two JSONL files reveal a critical distinction that the current skill blurs:
+## Errors Identified
+1. `Unknown parameter 'instructions' at 'agent_config'` - `additional_instructions` was being placed inside `agent_config`, but per the Gemini Interactions API docs, system-level instructions should be a top-level `system_instruction` field.
+2. `The value 'input_text' is not supported for 'type' at 'input[0].content[0]'` - The content type inside the input array was `input_text`, but the API only supports `text` (and other types like `document`, `image`, etc.).
+3. `files` were incorrectly placed inside `agent_config` instead of being included in the `input` array as content parts with `type: "document"`.
 
-**Hooks** (interception points):
-- Appear as top-level `type` values in the debug log
-- Plugins register handlers for these to MUTATE behavior
-- Examples: `tool.execute.before`, `tool.execute.after`, `chat.params`, `chat.headers`, `experimental.chat.system.transform`, `experimental.chat.messages.transform`, `tool.definition`, `chat.message`, `config`
-- Each hook receives `(input, output)` where `output` can be mutated
+## API Schema (from official docs)
+- `input` should be a flat array of content parts (not nested turns with `role`/`content`):
+  ```json
+  [
+    {"type": "text", "text": "research prompt here"},
+    {"type": "document", "uri": "file:///tmp/report.pdf"}
+  ]
+  ```
+- `agent_config` should only contain agent-specific settings like `type`. It must NOT contain `instructions` or `files`.
+- `system_instruction` is a top-level field for providing system-level instructions.
 
-**Events** (state change notifications):
-- Appear ONLY when the `event` hook is enabled, nested inside `type: "event"` records
-- These are emitted BY the runtime to notify observers
-- Examples: `session.created`, `session.updated`, `session.status`, `message.updated`, `message.part.updated`, `message.part.delta`, `session.diff`
-- The `event` hook can subscribe to these but they are read-only notifications
+## Fixes Applied (2026-04-25)
+Rewrote `_build_interaction_payload` in `skills/gemini-deep-research/mcp-server.py`:
+- Changed `input` from nested turns (`role`/`content`) to flat array of parts
+- Changed content `type` from `input_text` to `text`
+- Moved `file_uris` from `agent_config` into `input` array as `{"type": "document", "uri": uri}`
+- Kept `agent_config` as `{"type": "deep-research"}`
 
-**Both**: Some things exist as both a hook AND an event type (e.g., `tool.execute.before`)
+## Additional Discovery During Live Testing
+`system_instruction` (top-level) is **NOT supported** by the deep-research agent. The API returns:
+> "The 'system_instruction' parameter is not supported for the deep-research-preview-04-2026 agent. Please include any specific instructions in the 'input' prompt instead."
 
-### Runtime Flow (from logs)
+So `additional_instructions` is now **prepended to the prompt text** with a blank line separator:
+```
+"Focus on modern ES2024+ features only.\n\nWhat are 3 quick facts about JavaScript?"
+```
 
-**Simple request flow** (with-events.jsonl - "list all files"):
-1. `config` hook - resolved configuration
-2. `session.created` event - new session
-3. `session.updated` event - session metadata
-4. `chat.message` hook - user message enters
-5. `message.updated` / `message.part.updated` events - message stored
-6. `session.status` event -> busy
-7. `message.updated` event - assistant message placeholder
-8. `experimental.chat.system.transform` hook (title generation)
-9. `chat.params` hook (title agent)
-10. `chat.headers` hook (title agent)
-11. `tool.definition` hooks for all tools
-12. `session.updated` event - title set
-13. `session.diff` event
-14. `experimental.chat.messages.transform` hook
-15. `experimental.chat.system.transform` hook (main agent)
-16. `chat.params` / `chat.headers` hooks (main agent)
-17. `session.status` event -> busy
-18. `message.part.updated` event -> step-start
-19. `message.part.updated` event -> tool pending
-20. `tool.execute.before` hook - validate/modify args
-21. `message.part.updated` event -> tool running
-22. `message.part.updated` event -> tool running with output
-23. `tool.execute.after` hook - modify output
-24. `message.part.updated` event -> tool completed
-25. `message.part.updated` event -> step-finish
-26. `message.updated` events - finalize assistant message
-27. `message.part.delta` events - text streaming
-28. `session.status` events
-
-**Complex request flow** (no-events.jsonl - manager with memory):
-- Same pattern but with multiple turns
-- Shows `tool.execute.before`/`after` for `read`, `todowrite`, `write`, `bash`
-- Shows failed tool calls (read of missing file)
-- Tool definitions re-sent on every turn
-
-### Plan to Improve the Skill
-
-1. **Create a new reference file** `references/hooks-and-events-payloads.md` that documents:
-   - The complete runtime flow stage by stage
-   - For each stage: which hooks fire, which events emit
-   - Exact payload shapes for each hook (input and output)
-   - Exact payload shapes for each event type
-   - What fields are mutable in each hook
-   - Examples of mutations
-
-2. **Update `references/runtime-sequence.md`** to clearly distinguish hooks from events
-
-3. **Update `SKILL.md`** to:
-   - Add a clear section on "Hooks vs Events" 
-   - Reference the new payload documentation
-   - Improve the lifecycle analysis section with concrete examples from the logs
-
-4. **Create a visual flow diagram** in markdown showing the sequence
+## Live API Testing Results (all passed)
+- ✅ Basic payload (regular agent) → returns `interaction_id`, status `in_progress`
+- ✅ With `additional_instructions` merged into prompt → returns `interaction_id`, status `in_progress`
+- ✅ Poll interaction → returns correct status
+- ✅ Max agent (`deep-research-max-preview-04-2026`) → returns `interaction_id`, status `in_progress`
+- ✅ `file_search_stores` with valid store name → properly passes through (tested with invalid name, correctly rejected by API)
+- ✅ All original 400 errors resolved
 
 ## Status
-- ✅ Step 1: Created `references/hooks-and-events-payloads.md` (903 lines) - comprehensive payload reference
-- ✅ Step 2: Updated `references/runtime-sequence.md` (124 lines) - clear hooks vs events distinction with jq commands
-- ✅ Step 3: Updated `SKILL.md` (316 lines) - improved lifecycle analysis, hooks vs events section
-- ✅ Step 4: Final review complete
-
-## Summary of Improvements
-
-1. **New file: `hooks-and-events-payloads.md`**
-   - Complete runtime flow in 9 stages
-   - 14 hooks documented with exact input/output shapes and mutability
-   - 7 event types documented with payload shapes
-   - 6 practical mutation examples in TypeScript
-   - Quick reference table for hook/event name collisions
-
-2. **Updated `runtime-sequence.md`**
-   - Added "Hooks vs Events" section with comparison table
-   - Tagged timeline with 🔧/📡 symbols
-   - Added jq commands to distinguish hooks from events in logs
-   - Added "Tool Part State Lifecycle" section
-   - Updated "Common Mistakes" to include hook/event confusion
-
-3. **Updated `SKILL.md`**
-   - Rewrote `<runtime-lifecycle-analysis>` with 🔧/📡 notation and mutation notes
-   - Added "Hooks vs Events: How to Tell Them Apart" subsection
-   - Added reference to new payload documentation
-   - Updated references list to include all three reference files
-
-## Key Insight Documented
-The critical discovery from analyzing the two JSONL files:
-- `with-events.jsonl` had the `event` hook enabled, so we see BOTH hooks (top-level types) AND events (nested in `type: "event"`)
-- `no-events.jsonl` had the `event` hook disabled, so we only see hooks
-- Some names like `tool.execute.before` exist as BOTH a hook AND an event type
-- Hooks receive `(input, output)` and can mutate `output`; events are read-only notifications
+- ✅ Code fix complete
+- ✅ Payload structure tests pass
+- ✅ Live API end-to-end tests pass
+- ✅ Task complete

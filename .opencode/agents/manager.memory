@@ -1,42 +1,150 @@
-# Manager Memory — Qwen 3.5 2B Fine-Tuning Project
+# Manager Memory
 
-## Goal
-Create a local fine-tuning project for **Qwen/Qwen3.5-2B** by copying and adapting the existing `gemma4-e2b-finetuning/` project. The user explicitly wants to focus on **local fine-tuning**, not cloud/Vertex AI.
+## Current Task
+Create a professional MCP server that converts PDFs to Markdown using LLM providers Google and Ollama, with strong extraction of all text, equations, and tables, and with uniform equation presentation.
 
-## Source Project
-- `gemma4-e2b-finetuning/` — originally built for Google Gemma 4 E2B (Effective 2B)
-- Uses HF TRL + PEFT + QLoRA
-- Has cloud-specific files (Vertex AI, GCS, Docker, etc.)
+## Current Status
+- Step 1 completed: relevant skills and existing MCP patterns inspected.
+- Step 2 completed: repository layout/config inspected and placement recommendation recorded.
+- Wiki queried before handoff; wiki has no `data-place` pages for this task.
+- Relevant repository knowledge from skills includes: `manage-mcp`, `scripts`, `gemini-deep-research`, `manage-skills`, and `agent-and-skill-improvement`.
+- Existing MCP example is `skills/gemini-deep-research/mcp-server.py`; no PDF/Ollama/document-conversion skill or MCP example was found.
+- Step 3 completed: MCP architecture and conversion pipeline designed.
+- Step 4 completed: implemented the PDF-to-Markdown MCP server, skill documentation, and mocked unit tests.
+- Step 5 completed: focused tests passed without launching a persistent MCP server.
+- Step 6 completed: final review/docs summary done; no persistent MCP server started, no `opencode.json` edits made during review, and no secrets printed or copied.
+- Final post-completion Data-Wiki ingest completed after final review. Data-Wiki created/updated `data-place/wiki/index.md`, `data-place/wiki/log.md`, `data-place/wiki/sources/pdf-to-markdown-mcp-implementation.md`, `data-place/wiki/concepts/pdf-to-markdown-mcp.md`, `data-place/wiki/entities/google-gemini.md`, `data-place/wiki/entities/ollama.md`, and `manager.memory.md`.
+- Implementation is complete, tests passed, and final response is ready. Wiki files are additional changes created by Data-Wiki after final review.
+- Next step: decide whether to manually register the MCP locally with placeholder-to-real private env values, then run a live conversion smoke test against Google and/or a local Ollama vision model if credentials/services are available.
+- Do **not** perform implementation until steps 1-3 are completed and conventions/design are clear.
 
-## Target Project
-- `qwen3.5-2b-finetuning/` — adapted for Qwen/Qwen3.5-2B
-- Focus: **local fine-tuning only**
-- Keep Docker as optional local containerization
-- Remove or minimize cloud-specific content
+## Task Plan
 
-## Plan
-1. Copy `gemma4-e2b-finetuning/` → `qwen3.5-2b-finetuning/`
-2. Update all model references from `google/gemma-4-E2B-it` → `Qwen/Qwen3.5-2B`
-3. Update LoRA target modules for Qwen architecture (qwen uses `c_attn`, `c_proj`, `w1`, `w2` or similar — need to verify)
-4. Update chat template handling (Qwen uses its own chat template)
-5. Update project metadata (pyproject.toml, README/PLAN)
-6. Remove/minimize cloud-specific files (vertex_job.yaml, tasks.py cloud refs)
-7. Update Dockerfile labels and comments
-8. Verify all scripts work for local execution
+### 1. Read skills and existing MCP/server patterns
+**Goal:** Read all relevant skills and inspect existing MCP/server patterns in the repository.
 
-## Qwen 3.5 2B Architecture Notes
-- Model: `Qwen/Qwen3.5-2B` (base) or `Qwen/Qwen3.5-2B-Instruct` (chat)
-- Architecture: Modified transformer with SwiGLU, RoPE, RMSNorm
-- Likely LoRA targets: `c_attn`, `c_proj`, `w1`, `w2` (need to verify exact names)
-- Chat template: Qwen uses `<|im_start|>user\n...<|im_end|>\n<|im_start|>assistant\n...`
+**Success criteria:** Identify applicable conventions from `manage-mcp`, `scripts`, Google/Gemini examples, and any related skill files; report exact files read and key constraints.
 
-## Status
-- [ ] Directory copied
-- [ ] Model references updated
-- [ ] Configs updated
-- [ ] Scripts updated
-- [ ] Cloud files cleaned
-- [ ] PLAN.md rewritten for local focus
+**Status:** Completed 2026-04-26 by Operator.
 
-## Next Step
-Copy the directory and begin systematic updates.
+**Findings:** MCP servers should be single-file `uv` scripts with PEP 723 inline dependencies, a single `FastMCP` instance with clear instructions, focused tools returning `str`, explicit validation/error strings, minimal dependencies, private helpers grouped before tools, and `if __name__ == "__main__": mcp.run()`. Do not start MCP servers just to test. `scripts` reinforces minimal dependencies, `uv run`, no secrets in code, and clear one-command usage. `gemini-deep-research` requires `GOOGLE_API_KEY`, optional `GEMINI_API_BASE_URL`, uses `httpx`, environment-based config, JSON string responses, and wraps provider/API failures as `Error: ...`.
+
+**Warnings:** `opencode.json` currently contains literal API keys for Context7 and Google; do not copy them into new files or examples. External provider tests should be mocked unless credentials/services are explicitly available. No existing PDF/Ollama-specific skill exists.
+
+**Dependencies:** None.
+
+**Risks:** A relevant skill may be missed.
+
+**Fallback:** Search skills by names/keywords for MCP, script, PDF, Gemini, Ollama, Markdown.
+
+### 2. Inspect repository layout and configuration
+**Goal:** Decide where the new MCP should live and how it should be registered or documented.
+
+**Success criteria:** Recommend exact file path(s), with no code changes yet.
+
+**Status:** Completed 2026-04-26 by Operator.
+
+**Findings:** Top-level `skills/` is the established home for durable skill/MCP packages. The only local MCP implementation is colocated as `skills/gemini-deep-research/mcp-server.py` with a companion `SKILL.md` and an example JSON. `.opencode/skills/` is empty and not the right place for this repo's source skill. No global Python project config, pytest config, `tests/`, or `fixtures/` directories were found. `opencode.json` is gitignored and contains sensitive provider credentials; do not copy values or commit them.
+
+**Recommendation:** Create the new MCP under a new skill directory: `skills/pdf-to-markdown-mcp/mcp-server.py`, with `skills/pdf-to-markdown-mcp/SKILL.md` documenting requirements, run command, exposed tools, provider env vars, and manual registration. If tests are added, colocate them under `skills/pdf-to-markdown-mcp/tests/` and fixtures under `skills/pdf-to-markdown-mcp/fixtures/` because no repository-wide test convention exists. If examples are useful, add sanitized sample outputs only; no real API data or secrets.
+
+**Registration guidance:** Do not edit `opencode.json` during implementation unless explicitly requested, because it is gitignored and currently stores local sensitive values. Instead document a manual local registration entry using `type: local`, `command: ["uv", "run", "skills/pdf-to-markdown-mcp/mcp-server.py"]`, `enabled: true`, and an `environment` block listing variable names only, with placeholder values.
+
+**Dependencies:** Step 1.
+
+**Risks:** Secrets may be visible in config.
+
+**Fallback:** Do not copy secrets and avoid config edits unless needed.
+
+### 3. Design the MCP architecture and conversion pipeline
+**Goal:** Produce a concise design before implementation.
+
+**Success criteria:** Cover FastMCP tool interface, provider abstraction for Google and Ollama, PDF page rendering/text extraction strategy, equation/table normalization rules, chunking/verification passes, error handling, and test strategy.
+
+**Status:** Completed 2026-04-26 by Operator.
+
+**Key design decisions:** Implement `skills/pdf-to-markdown-mcp/mcp-server.py` as a single FastMCP/uv PEP 723 script exposing one focused conversion tool, `convert_pdf_to_markdown`, returning JSON as `str`. Inputs include `pdf_path`, `provider` (`google`/`ollama`), optional `model`, `pages`, `output_mode`, `include_page_markers`, `completeness_check`, `render_dpi`, `max_pages`, `timeout_seconds`, and optional prompt notes. Use PyMuPDF (`pymupdf`) for PDF metadata/text extraction and page rendering; Pillow only if image handling requires it. Use `httpx` for Google/Ollama calls and `mcp[cli]` for FastMCP. Provider abstraction should hide `_generate(parts)` behind Google and Ollama clients, using env vars `GOOGLE_API_KEY`, optional `GEMINI_API_BASE_URL`, `PDF_TO_MD_GOOGLE_MODEL`, `OLLAMA_BASE_URL`, `PDF_TO_MD_OLLAMA_MODEL`, and timeout/page limits. Default models: Google `gemini-2.5-flash`, Ollama `llava:latest` or configured local vision model. Render selected PDF pages to PNG/base64 for visual fidelity and provide embedded text as context. Chunk by pages to stay within payload limits, then merge deterministically. Prompt contract requires exact reading order; all text, headings, captions, footnotes, equations, and tables; no invented content; inline equations as `$...$`; display equations as standalone `$$...$$` blocks with one blank line around them; multi-line equations use `\begin{aligned}...\end{aligned}` inside `$$`; preserve equation numbers with `\tag{}` where appropriate; simple tables as Markdown and complex/merged tables as HTML. Post-process with deterministic equation delimiter normalization, page marker insertion, conservative duplicate boundary merging, optional table whitespace normalization, and optional second-pass completeness check. Tests should mock provider HTTP calls and cover validation, page parsing, prompt construction, provider payload shape, equation normalization, merge behavior, JSON result schema, and failure strings; generate tiny PDFs for helper tests if feasible.
+
+**Dependencies:** Steps 1-2.
+
+**Risks:** Provider APIs differ.
+
+**Fallback:** Isolate providers behind one interface and make the prompt contract provider-agnostic.
+
+### 4. Implement MCP server and supporting tests/fixtures
+**Goal:** Create/update files according to the approved design.
+
+**Success criteria:** Use minimal appropriate dependencies; include professional prompts requiring complete text/equation/table extraction and consistent display of equations; avoid secrets.
+
+**Status:** Completed 2026-04-26 by Operator.
+
+**Created files:** `skills/pdf-to-markdown-mcp/mcp-server.py`, `skills/pdf-to-markdown-mcp/SKILL.md`, and `skills/pdf-to-markdown-mcp/tests/test_mcp_server.py`. No fixture files were needed; tests generate tiny PDFs dynamically.
+
+**Implementation notes:** Server is a PEP 723 `uv` script using `FastMCP`, `httpx`, and `PyMuPDF`. It exposes `convert_pdf_to_markdown` with explicit typed parameters, validates PDF path/provider/pages/DPI/timeouts/max pages, rejects encrypted PDFs, extracts embedded text, renders PNG page images, calls Google `generateContent` with `inline_data` or Ollama `/api/generate` with `images` and `stream: false`, applies deterministic Markdown/equation/table post-processing outside fenced code blocks, supports optional completeness-check append, and returns JSON strings or `Error: ...`. Tests are deterministic and mock providers; full formal test execution remains Step 5.
+
+**Dependencies:** Step 3.
+
+**Risks:** PDF dependencies may be heavy or unavailable.
+
+**Fallback:** Use Python libraries available through `uv` metadata and keep provider calls mockable for tests.
+
+### 5. Run focused tests
+**Goal:** Validate behavior without launching a persistent MCP server unnecessarily.
+
+**Success criteria:** Tests pass and verify provider abstraction, equation normalization/consistency, table handling, prompt construction, and representative PDF conversion helpers with mocked LLMs.
+
+**Status:** Completed 2026-04-26 by Operator.
+
+**Commands/results:** Ran `uv run --with pytest --with 'mcp[cli]>=1.2.0' --with 'httpx>=0.27.0' --with 'pymupdf>=1.24.0' pytest 'skills/pdf-to-markdown-mcp/tests/test_mcp_server.py'`; initial result was 4 passed, 2 failed due equation normalization splitting compact `$$...$$` blocks. Fixed `_normalize_equations` to preserve display equation contents while still converting `\(...\)` and `\[...\]` outside fenced code. Re-ran the same focused pytest command; result was 6 passed. Also ran `python3 -m py_compile 'skills/pdf-to-markdown-mcp/mcp-server.py'` successfully.
+
+**Files modified during Step 5:** `skills/pdf-to-markdown-mcp/mcp-server.py` only.
+
+**Warnings/risks:** Tests use mocked providers and generated tiny PDFs, so they validate deterministic helper behavior and payload shape but not live Google/Ollama quality or provider availability.
+
+**Dependencies:** Step 4.
+
+**Risks:** External LLMs unavailable.
+
+**Fallback:** Mock HTTP calls and test deterministic helper behavior.
+
+### 6. Final review and documentation summary
+**Goal:** Confirm deliverables and document usage.
+
+**Success criteria:** Confirm changed files, test commands/results, usage instructions, environment variables for Google/Ollama, known limitations, and ensure no secrets were introduced.
+
+**Status:** Completed 2026-04-26 by Operator.
+
+**Changed files for this implementation:** `skills/pdf-to-markdown-mcp/mcp-server.py`, `skills/pdf-to-markdown-mcp/SKILL.md`, and `skills/pdf-to-markdown-mcp/tests/test_mcp_server.py`. Generated `__pycache__` artifacts found during final review were removed. Repository still has unrelated pre-existing working-tree changes, including `opencode.json`, but final review did not edit that config and the new PDF MCP files contain only placeholder/test key strings, not real secrets.
+
+**Test results:** Focused command previously run and passed: `uv run --with pytest --with 'mcp[cli]>=1.2.0' --with 'httpx>=0.27.0' --with 'pymupdf>=1.24.0' pytest 'skills/pdf-to-markdown-mcp/tests/test_mcp_server.py'` => 6 passed. Syntax check previously passed: `python3 -m py_compile 'skills/pdf-to-markdown-mcp/mcp-server.py'`. No full rerun was needed during final review because only generated cache artifacts were removed.
+
+**Usage:** Manual run command is `uv run skills/pdf-to-markdown-mcp/mcp-server.py`. Tool is `convert_pdf_to_markdown(pdf_path, provider='google'|'ollama', model=None, pages=None, include_page_markers=True, completeness_check=False, render_dpi=180, max_pages=None, timeout_seconds=None, extra_instructions=None)`. Success returns a JSON string with `ok`, provider/model/path/page counts/pages/Markdown/warnings/stats; failures return `Error: ...`.
+
+**Environment variables:** Google requires `GOOGLE_API_KEY`; optional Google env vars are `GEMINI_API_BASE_URL` and `PDF_TO_MD_GOOGLE_MODEL` (default `gemini-2.5-flash`). Ollama requires a local Ollama service with a vision model; optional env vars are `OLLAMA_BASE_URL` (default `http://localhost:11434`) and `PDF_TO_MD_OLLAMA_MODEL` (default `llava:latest`).
+
+**Manual MCP registration snippet, placeholders only:** Use a private config entry with `type: local`, command `['uv', 'run', 'skills/pdf-to-markdown-mcp/mcp-server.py']`, `enabled: true`, and environment placeholders such as `GOOGLE_API_KEY: '<your-google-api-key>'`, `PDF_TO_MD_GOOGLE_MODEL: 'gemini-2.5-flash'`, `OLLAMA_BASE_URL: 'http://localhost:11434'`, `PDF_TO_MD_OLLAMA_MODEL: 'llava:latest'`. Do not commit real values.
+
+**Quality features:** PyMuPDF embedded text extraction plus rendered PNG page images; strict prompt requires all visible text in reading order, equations, symbols, captions, footnotes, references, annotations, table captions/notes/units, and `[illegible]` for unreadable visible content; equation normalization converts `\(...\)` to `$...$` and `\[...\]` to `$$...$$` outside fenced code; display equations are required as blank-line-separated `$$...$$`, aligned math inside `\begin{aligned}...\end{aligned}`, equation numbers with `\tag{...}`; simple tables are Markdown, complex/merged-cell tables are HTML; optional completeness-check pass appends provider-identified missing visible content.
+
+**Known limitations/open questions:** Live extraction quality depends on the selected vision model and prompt adherence; mocked tests do not validate live Google/Ollama behavior or OCR quality on complex PDFs; very large PDFs may need `pages`/`max_pages` to control runtime/cost; password-protected PDFs are rejected; completeness check can only append model-identified missing content and cannot guarantee perfection; user should choose/verify the best Ollama local vision model for their hardware.
+
+**Critical fixes during final review:** Removed generated Python `__pycache__` artifacts only. No source logic/doc changes were required.
+
+**Dependencies:** Step 5.
+
+**Risks:** Coverage may be incomplete.
+
+**Fallback:** Add missing tests/docs before final response.
+
+## Key Constraints
+- Do not modify project implementation files until the plan reaches the implementation step.
+- Do not introduce secrets or copy secrets from existing config.
+- Follow repository MCP/server conventions discovered from skills and existing files.
+- Use mocks for tests where external Google/Ollama services are unavailable.
+
+## Historical Notes
+
+### Completed prior task: opencode runtime hooks skill improvement
+- Analyzed debug JSONL files with and without event hook enabled.
+- Documented the distinction between hooks and events: hooks are top-level interception points and can mutate outputs; events are read-only runtime notifications nested under `type: "event"` when the event hook is enabled.
+- Updated `skills/opencode-runtime-hooks/` documentation, including comprehensive hook/event payload references and runtime sequence notes.
