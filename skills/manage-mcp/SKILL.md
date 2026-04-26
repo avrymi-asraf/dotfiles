@@ -90,6 +90,39 @@ Rules:
 - All tools return `str` — JSON or plain text, never raw Python objects
 - Only include parameters the tool actually uses
 - Use `str | None = None` for optional parameters
+- Keep the call surface small and obvious: most MCP tools should have no more than 3-4 arguments. If a tool needs many knobs, those settings usually belong in the MCP config, server instructions, environment variables, or a named preset/config object defined outside the tool call.
+
+Bad:
+
+```python
+@mcp.tool()
+def parse_pdf(
+    pdf_path: str,
+    provider: str = "google",
+    model: str | None = None,
+    pages: str | None = None,
+    include_page_markers: bool = True,
+    completeness_check: bool = False,
+    render_dpi: int = 180,
+    max_pages: int | None = None,
+    timeout_seconds: float | None = None,
+    extra_instructions: str | None = None,
+) -> str:
+    ...
+```
+
+Good:
+
+```python
+@mcp.tool()
+def parse_pdf(
+    pdf_path: str,
+    extra_instructions: str | None = None,
+) -> str:
+    ...
+```
+
+In this example, `provider`, `model`, `include_page_markers`, `completeness_check`, `render_dpi`, `max_pages`, and `timeout_seconds` should be configured on the MCP server or selected through a config profile when the MCP is defined. `pages` should only stay as a tool argument if choosing pages is part of the user's immediate task. Calling an MCP tool should feel clear: the agent provides the input for the task, not every internal tuning parameter.
 
 ### Explicit Error Handling
 
