@@ -1,14 +1,109 @@
-Agents, Skills, and Memory
-1. Agents
-Agents represent the specific personas or roles assigned to execute tasks. They define the personality and approach required to do the work. For example, a "Developer" agent would be a persona specifically tailored to write code.
-2. Skills
-Skills constitute the knowledge base and practical expertise of the model. For an AI to contribute true wisdom, its skills must contain broad, high-quality units of information.Cognitive Flexibility: A well-designed skill provides a complete range of freedom. It encompasses everything from explaining the foundational roots of a concept to offering practical recipes for execution. Rather than forcing the model into rigid, step-by-step instructions, this approach provides enough context for the model to utilize its own reasoning, deduction, and connection capabilities.
-3. Memory & Tools
-Memory and tools are context-dependent resources, scoped specifically to individual projects and agents.
-Memory
-Memory is divided into two distinct categories:Short-Term Memory: Acts as the active working space. It contains a log of recent actions and maintains the current status of the project.Long-Term Memory: Acts as a repository for crucial, highly technical details. This is reserved for important data that doesn't naturally fit into a general "Skill" and doesn't belong to a specific "Agent's" core personality.ToolsTools act as a specialized form of long-term memory. They function similarly to standard memory by being attached to a project or agent, but they specifically contain the connections, configurations, and instructions on how the agent should use external resources to perform actions.
-4. Communication Hub (Agents.md)
-This document serves as the central collaboration space for all agents to communicate. It should continuously track the status of the project, outline how the project operates, map out the code flow, and serve as the single source of truth for agent coordination.
+# Agents, Skills, and Memory
 
+In this system - for now on the opencode and vscode. all this are local in the project. only agents and skills are softlink to the dotfiles repo.
 
-- Ideas soulde be appear in difference locatoins, with differece views.
+## 1. Agents
+
+Agents are the specific personas or roles assigned to complete tasks. They define the personality, perspective, and working style needed for the job. also they define spesipic mcps to use, the model, and maybe empesize some skills.
+ for Example, a **Developer** agent would be designed specifically to write, review, and reason about code.
+
+The main issue with the subagents is to manage the context of the llm. even there is no souch difference between the agents. have differece agents with difference memory is importent to menege the context.
+
+The basic agents are:
+Menager - for run long tasks. need to use the others agents, menage the context of the subagents, ane follow the big missin.
+
+Resorcher - focus on searce in the internt, use mcps for search in the internet, deep research, know the wiki llm karpathy. need to be good model. 
+
+Plan - write plans, focus on code standard, big picture of the code flow, the plan also make the code review. plan the code and the tests. know how to deploy.
+
+Build - write the code, focus on create from the plan. code principles - how to write code.
+
+Operator - run thins, run test, deplay, make actions. focus on know how to use tools.\
+
+## 2. Skills
+
+Skills represent the model’s knowledge base and practical expertise. For an AI system to provide real value, its skills should contain broad, high-quality units of information.
+
+A well-designed skill should support **cognitive flexibility**. It should give the model enough context to move freely between foundational explanation, technical reasoning, and practical execution.
+
+Rather than forcing the model into rigid step-by-step instructions, a skill should provide the background, concepts, patterns, and examples needed for the model to reason, deduce, and connect ideas on its own.
+
+In other words, skills should not only tell the model what to do. They should give the model enough understanding to decide how best to do it.
+
+Basic skills:
+
+manage-skill
+
+manege-mcp
+
+scripts
+
+code-principles
+
+internet-search
+
+wiki-llm
+
+agent-system - how this system sould look like, with spesipcation for every file. 
+
+project-skills
+
+## 3. Intro and communictoin `Agents.md`
+
+`Agents.md` serves as the central collaboration space for all agents.
+
+It is the intro to the project. it sould contain what is the project, how is build, how to use it etc.
+also it's also need to contain status stage that agents update where the project.
+
+It should continuously track the project’s status, explain how the project operates, map the code flow, and act as the single source of truth for coordination between agents.
+
+This file should help agents understand what has been done, what is currently happening, and how different parts of the system connect.
+
+## 4. Memory file
+
+memory file is file named <agent-name>.memory inside the agent folders.
+
+### Memory
+
+Memory is divided into two main categories:
+
+#### Short-Term Memory
+
+Short-term memory acts as the active working space. It keeps track of recent actions, current decisions, open questions, and the present status of the project.
+
+#### Long-Term Memory
+
+Long-term memory stores important technical details that need to persist over time. This is reserved for information that does not naturally belong inside a general skill and is not part of an agent’s core personality.
+
+## 5. Coutinues imporvment
+
+Agents system has to contain a strong self imporovment system.
+
+It will be in several places:
+
+the agent.memory file, that contain short term and long term memory.
+
+the project skills that update continuesly
+
+the skills that has the comman-mistakes and errors
+
+the agent file
+
+1. Becouse agents don't use to update the memory and the system - this point have to be emphsize in several placess again and again to make sure they will do it.
+2. I'ts very important to integreted the new memory inside the memory. what always happend is that the agents think about this converstion as the most importent and we get not nessery memory on half page.
+3.
+
+## Priciples when we work with agents
+
+#### 1. Distributed Ideas and Multiple View
+
+Ideas should not live in only one place or appear from only one perspective.
+
+Important concepts should be represented across different locations, using different views, depending on how they are used. For example, the same idea may appear as a high-level explanation in a skill, as a project-specific note in memory, as an implementation detail in `Agents.md`, or as an operational instruction inside a tool.
+
+This makes the system more flexible, easier to navigate, and better suited for agents working from different roles or contexts.
+
+2. leve place for thinking.
+
+   agents are smarts, sometimts they need a recepie exacly what to do. but most importent is to thech them ideas about the system, they will They will complete them and thus be able to do more.
+3.
