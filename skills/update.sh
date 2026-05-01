@@ -21,8 +21,9 @@ command -v jq > /dev/null 2>&1 \
 jq -e --arg k "$HOST_USER" '.hosts[$k]' "$MAP" > /dev/null \
     || { echo "error: no entry for '$HOST_USER' in map.json" >&2; exit 1; }
 
-skill_count=$(find "$DIR" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
-echo "$HOST_USER — $skill_count skills${HARD:+ (hard copy mode)}"
+skill_count=$(find "$DIR" -mindepth 2 -maxdepth 2 -name "SKILL.md" | wc -l | tr -d ' ')
+[[ "$HARD" == true ]] && mode_suffix=" (hard copy mode)" || mode_suffix=""
+echo "$HOST_USER — $skill_count skills$mode_suffix"
 
 while IFS=$'\t' read -r raw_path skill_list; do
     target="${raw_path/#\~/$HOME}"
@@ -38,27 +39,24 @@ while IFS=$'\t' read -r raw_path skill_list; do
             [[ "$skill_list" != "all" ]] && [[ ",$skill_list," != *",$name,"* ]] && continue
             link="$target_dir/$name"
             real=$(readlink -f "$skill_dir")
-            if $HARD; then
+            if [[ "$HARD" == true ]]; then
                 if [[ -L "$link" ]]; then
                     rm "$link"
                     cp -r "$real" "$link"
                     echo "  copy  $name  (replaced symlink with hard copy)"
                 elif [[ -e "$link" ]]; then
-                    # Check if it's already a hard copy (not a symlink)
-                    if [[ "$link" -ef "$real" ]]; then
-                        echo "  skip  $name  (hard copy already up to date)"
-                    else
-                        rm -rf "$link"
-                        cp -r "$real" "$link"
-                        echo "  copy  $name  (replaced existing with hard copy)"
-                    fi
+                    rm -rf "$link"
+                    cp -r "$real" "$link"
+                    echo "  copy  $name  (replaced existing with hard copy)"
                 else
                     cp -r "$real" "$link"
                     echo "  copy  $name"
                 fi
             else
                 if [[ -L "$link" ]]; then
-                    [[ "$(readlink -f "$link")" != "$real" ]] && echo "  skip  $name  (symlink points elsewhere)"
+                    if [[ "$(readlink -f "$link")" != "$real" ]]; then
+                        echo "  skip  $name  (symlink points elsewhere)"
+                    fi
                 elif [[ -e "$link" ]]; then
                     echo "  skip  $name  (exists, not a symlink)"
                 else
@@ -70,4 +68,4 @@ while IFS=$'\t' read -r raw_path skill_list; do
     done
 done < <(jq -r --arg k "$HOST_USER" \
     '.hosts[$k][] | [.location, (.skills | if . == "all" then "all" else join(",") end)] | @tsv' \
-    "$MAP") || true
+    "$MAP")
