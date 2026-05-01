@@ -24,12 +24,10 @@ Topics:
 These four laws are non-negotiable. Every script must satisfy all four before it's considered done.
 
 ### 1. Clarity first
-**The main logic must be obvious from reading the code — not from comments.**
+**The main logic must be obvious from reading the code from the main function — not from comments.**
 
 Code that needs a comment to be understood is code that should be rewritten. Use names that say what a thing *is* and what a function *does*. If the flow requires mental effort to follow, restructure it.
 
-- `distribution_id` not `did`. `fetch_lambda_code` not `get_data`. `print_progress()` not `pp`.
-- A function named `get_lambda_arns(distribution)` needs no comment. `process(x)` needs many.
 - Never use cryptic lambdas or abbreviations at module scope.
 
 ### 2. Structure: one central script, helpers only when they earn their place

@@ -12,7 +12,7 @@ HOST_USER="$(hostname)/$(whoami)"
 jq -e --arg k "$HOST_USER" '.hosts[$k]' "$MAP" > /dev/null \
     || { echo "error: no entry for '$HOST_USER' in map.json" >&2; exit 1; }
 
-skill_count=$(find "$DIR" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
+skill_count=$(find "$DIR" -mindepth 2 -maxdepth 2 -name "SKILL.md" | wc -l | tr -d ' ')
 echo "$HOST_USER — $skill_count skills"
 
 while IFS=$'\t' read -r raw_path skill_list; do
@@ -36,4 +36,4 @@ while IFS=$'\t' read -r raw_path skill_list; do
     done
 done < <(jq -r --arg k "$HOST_USER" \
     '.hosts[$k][] | [.location, (.skills | if . == "all" then "all" else join(",") end)] | @tsv' \
-    "$MAP") || true
+    "$MAP")

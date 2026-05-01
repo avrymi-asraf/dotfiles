@@ -2,13 +2,14 @@
     "hosts": {
         "MEWL-5CD4305QXX/user": [
             {
-                "location": "~/.claude/skills",
+                "location": "/home/user/work/cdns/cdns-grafana/.github/skills",
                 "skills": [
-                    "chatreplay",
                     "jira-workflow",
                     "manage-mcp",
                     "manage-skills",
-                    "scripts"
+                    "scripts",
+                    "agent-and-skill-improvement",
+                    "gemini-deep-research"
                 ]
             }
         ],
