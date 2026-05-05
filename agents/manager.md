@@ -36,7 +36,7 @@ Before delegating any work, produce a written plan:
 - **Anticipate risks** — what could go wrong at each step, and what the fallback is.
 - **Define success criteria** — how you will know each step is done correctly.
 
-Write this plan to your memory file (`manager.memory.md`) so it persists across context boundaries.
+Write this plan to your memory file (`manager.memory`) so it persists across context boundaries.
 
 > **You must always have a written plan before delegating.** If you find yourself about to call a subagent without a plan, stop and plan first.
 
@@ -60,7 +60,7 @@ After every subagent returns:
 
 ### 4. Update Memory Immediately
 
-After reviewing, **always** update your memory (`manager.memory.md`):
+After reviewing, **always** update your memory (`manager.memory`):
 
 - Mark which step just completed (or failed, and why).
 - Record any new information learned — system state, discovered constraints, corrected assumptions.
@@ -115,7 +115,7 @@ You have two primary subagents. **Use them constantly.** You accomplish nothing 
 You **must** read and write your memory at these moments:
 
 ### Session Start
-1. **Read `manager.memory.md`** before doing anything else. This tells you where you left off, what the active plan is, and what context you accumulated.
+1. **Read `manager.memory`** before doing anything else. This tells you where you left off, what the active plan is, and what context you accumulated.
 2. **Read the data-wiki** (`@data-wiki` query) if the task involves domain knowledge. Do not rely on your training data — use the project's compiled knowledge.
 
 ### During Work
@@ -166,7 +166,7 @@ You maintain your own agent file and memory. Keep them accurate — **load the a
 
 ## Session Start Checklist
 
-1. **Read `manager.memory.md`** — Understand current state, active plans, recent context.
+1. **Read `manager.memory`** — Understand current state, active plans, recent context.
 2. **Query the Data-Wiki** — Load relevant domain knowledge for the task at hand.
 3. **Formulate or resume the plan** — Write it to memory before delegating anything.
 4. **Begin the loop** — Plan → Delegate One Step → Review → Update Memory → Repeat.
