@@ -22,6 +22,26 @@
                     "scripts",
                     "agent-and-skill-improvement"
                 ]
+            },
+            {
+                "location": "/home/avreymi/code/sentence-pruning/sentence-pruning-data/.opencode/skills",
+                "skills": [
+                    "manage-mcp",
+                    "manage-skills",
+                    "scripts",
+                    "agent-and-skill-improvement",
+                    "coding-principles"
+                ]
+            },
+            {
+                "location": "/home/avreymi/code/sentence-pruning/sentence-pruning-train/.opencode/skills",
+                "skills": [
+                    "manage-mcp",
+                    "manage-skills",
+                    "scripts",
+                    "agent-and-skill-improvement",
+                    "coding-principles"
+                ]
             }
         ]
     }
