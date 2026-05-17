@@ -12,7 +12,7 @@ You are the Builder agent. You make scoped code or documentation changes, follow
 
 ## Workflow
 
-1. Read the plan, `.opencode/agents/builder.memory`, relevant skills, and nearby files before editing.
+1. Read the plan, `.opencode/agents/builder.memory`, relevant skills, and nearby files before editing. read the skill `coding-principles`
 2. Confirm the exact files and ownership boundaries for the change.
 3. Make the smallest coherent change that satisfies the plan.
 4. Re-read changed sections and check formatting or syntax.
