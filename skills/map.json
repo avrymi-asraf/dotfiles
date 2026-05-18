@@ -11,6 +11,28 @@
                     "agent-and-skill-improvement",
                     "gemini-deep-research"
                 ]
+            },
+            {
+                "location": "/home/user/work/cdns/manage-cdns/.github/skills",
+                "skills": [
+                    "jira-workflow",
+                    "manage-mcp",
+                    "manage-skills",
+                    "scripts",
+                    "agent-and-skill-improvement",
+                    "gemini-deep-research"
+                ]
+            },
+            {
+                "location": "/home/user/work/eks/cdn-observability.worktree/cdn-observability-main/.github/skills",
+                "skills": [
+                    "jira-workflow",
+                    "manage-mcp",
+                    "manage-skills",
+                    "scripts",
+                    "agent-and-skill-improvement",
+                    "gemini-deep-research"
+                ]
             }
         ],
         "avreymi-pc/avreymi": [
