@@ -13,7 +13,7 @@ If something is not clear enough, ask!
 
 ## Project Structure
 
-* **Architecture:** <Explain the high-level architecture, main components, and overall design. and the **Code Flow:** Describe the main code flow, detailing how data or control moves through the system from initiation to completion. You may use a numbered list or simple diagram.>
+* **Architecture:** <Explain the high-level architecture, main components, and overall design. and the **Code Flow:** Describe the main code flow, detailing how data or control moves through the system from initiation to completion. You may use a  simple diagram.>
 
 ---
 
@@ -39,7 +39,7 @@ If something is not clear enough, ask!
 
 ---
 
-## Building and Running
+## Running and using the code
 
 **Prerequisites:**
 * <List all necessary prerequisites, dependencies (e.g., Python 3.10+, pip), and configuration steps.>
@@ -47,22 +47,35 @@ If something is not clear enough, ask!
 **Build Steps (if applicable):**
 1.  <Step 1 for building/compiling>
 2.  <Step 2...>
+<short description of the code flow of this command, how it works, etc.>
 
 **Running the Application:**
 1.  <Step 1 for running the code>
 2.  <Step 2...>
+<short description of the code flow of this command, how it works, etc.>
+
+**use some options to run the code, for example:**
+```bash
+app arg1 arg2 --option1 value1 --option2 value2
+```
+<short description of the code flow of this command, how it works, etc.>
 
 ---
+
+
+## relevant documents
+<Provide links to any relevant documents, such as design documents, plans, skills that are relevant to this project (not general skills)>
+
+
+
 
 ## Status
 <What are the status of the project? in dev, if we need to deploy - in prsees. it soulde be smale pharagrap that describe what is the status.
 we use projct x on google, initlaize the bla bla.
 >
-
-
 <This section must be added to the `Agents.md` file exactly as written below:>
 
-## Code Writing Rules 📝
+## Code Writing Rules
 Do not create new documentation files (unless explicitly requested). Only update documentation via the `README` if necessary.
 
 ### File Header (Mandatory)
