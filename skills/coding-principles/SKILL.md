@@ -10,3 +10,5 @@ Updating code - it is sensitive, it must be done gently, not to refactor what yo
 Building code requires checking that it actually connects and works.
 Code should be elegant, cleverness, tricks, sophisticated things should not be in the code, they should only be in certain cases.
 The way of working is - building something, once it is assembled - you make sure that it actually works and continue.
+This is a research and development project, it is critical that it be clean. There is no need to maintain backward compatibility at all.
+We will always strive for there to be only one clear and direct way to use the code. We will only deviate from this when necessary.

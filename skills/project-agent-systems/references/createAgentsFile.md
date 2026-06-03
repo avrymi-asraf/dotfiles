@@ -11,14 +11,13 @@ If something is not clear enough, ask!
 
 ---
 
-## Project Structure
+## Project Structure - remember to update it when you make changes
 
 * **Architecture:** <Explain the high-level architecture, main components, and overall design. and the **Code Flow:** Describe the main code flow, detailing how data or control moves through the system from initiation to completion. You may use a numbered list or simple diagram.>
 
 ---
 
-## File Structure
-
+## File Structure - remember to update it with the latest project information
 <Provide a clear, tree-like representation of the project's directory and file layout. Follow the tree with brief descriptions for the purpose of key directories and important files.>
 
 **Example:**
@@ -54,7 +53,7 @@ If something is not clear enough, ask!
 
 ---
 
-## Status
+## Status - remember to update it
 <What are the status of the project? in dev, if we need to deploy - in prsees. it soulde be smale pharagrap that describe what is the status.
 we use projct x on google, initlaize the bla bla.
 >
@@ -62,7 +61,7 @@ we use projct x on google, initlaize the bla bla.
 
 <This section must be added to the `Agents.md` file exactly as written below:>
 
-## Code Writing Rules 📝
+## Code Writing Rules
 Do not create new documentation files (unless explicitly requested). Only update documentation via the `README` if necessary.
 
 ### File Header (Mandatory)
@@ -72,3 +71,8 @@ Each code file **must** include a short description (no more than 4–5 sentence
 - Its role in the **big picture** (as defined in the **Project Structure** section).
 - Its connection to the main **code flow** of the project.
 - The intended **execution environment** (where this code will run, as defined in the **Project Goal** section).
+- The skills, memory, shared docs are very important to continue working on on the project. you have all this are live files. and currently update them it is very very important. remember to do it!
+- 
+```
+
+all the section above it is the template for the `AGENTS.md` file. You should fill in the sections with the specific details of your project. Make sure to provide clear and concise information that accurately reflects the project's goals, structure, and status.
