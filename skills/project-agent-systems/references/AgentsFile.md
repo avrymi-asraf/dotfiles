@@ -13,7 +13,7 @@ If something is not clear enough, ask!
 
 ## Project Structure
 
-* **Architecture:** <Explain the high-level architecture, main components, and overall design. and the **Code Flow:** Describe the main code flow, detailing how data or control moves through the system from initiation to completion. You may use a  simple diagram.>
+* **Architecture:** <Explain the high-level architecture, main components, and overall design. and the **Code Flow:** Describe the main code flow, detailing how data or control moves through the system from initiation to completion. You may use a  simple diagram. you need to describe it in terms of the code, functions ect>
 
 ---
 

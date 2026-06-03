@@ -1,5 +1,5 @@
 ---
-name: project-local-agent-systems
+name: project-agent-systems
 description: Build and document project-local agent, skill, MCP, and memory setups across OpenCode, VS Code/Copilot, and Codex without using user/global settings.
 ---
 
@@ -114,3 +114,4 @@ EXAMPLE_TOKEN = "<set-outside-git>"
 - No real tokens, account IDs, machine paths, or private endpoints were committed.
 - Skill files have YAML frontmatter with `name` and `description`.
 - Any memory convention is documented as project-local and, if applicable, unofficial.
+references 

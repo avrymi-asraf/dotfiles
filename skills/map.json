@@ -33,6 +33,19 @@
                     "agent-and-skill-improvement",
                     "gemini-deep-research"
                 ]
+            },
+            {
+                "location": "/home/user/work/eks/route-matcher-worktree/route-matcher-R1/.github/skills",
+                "skills": [
+                    "jira-workflow",
+                    "manage-mcp",
+                    "manage-skills",
+                    "scripts",
+                    "agent-and-skill-improvement",
+                    "gemini-deep-research",
+                    "coding-principles",
+                    "project-agent-systems"
+                ]
             }
         ],
         "avreymi-pc/avreymi": [
