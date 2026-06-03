@@ -1,6 +1,6 @@
 ---
 name: project-agent-systems
-description: How to build, update and maintain code projects to be agent-friendly.
+description: Build and document project-local agent, skill, MCP, and memory setups across OpenCode, VS Code/Copilot, and Codex without using user/global settings.
 ---
 <project-agent-systems>
 This skill covers best practices for designing and documenting project-local agent systems, including repository-local agents, skills, MCP servers, prompts, custom instructions, and agent memory. The focus is on ensuring that projects are set up in a way that is compatible with popular agent platforms while avoiding assumptions about platform behavior or committing sensitive information.
@@ -121,3 +121,4 @@ EXAMPLE_TOKEN = "<set-outside-git>"
 - No real tokens, account IDs, machine paths, or private endpoints were committed.
 - Skill files have YAML frontmatter with `name` and `description`.
 - Any memory convention is documented as project-local and, if applicable, unofficial.
+references 

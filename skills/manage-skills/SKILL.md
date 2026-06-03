@@ -31,10 +31,14 @@ For broader architectural patterns, consult [Common Patterns](Common Patterns.md
 ```
 skill-name/
 ├── SKILL.md              # Required - main instructions
-├── reference.md          # Optional - detailed documentation
+├── references/           # Optional - one or more reference files (each covering one topic)
+│   ├── topic-a.md
+│   └── topic-b.md
 ├── examples.md           # Optional - usage examples
 └── scripts/              # Optional - utility scripts
 ```
+
+> **References is a folder, not a single file.** Each file inside covers exactly one topic. Do not create a single `reference.md` at the skill root — use `references/<topic>.md` instead.
 
 ### Storage Locations
 
@@ -150,7 +154,7 @@ The context window is shared. Every token competes for space. The agent is alrea
 
 **SKILL.md must be under 300 lines.** Put essentials in SKILL.md; detailed reference in separate files read on demand. Keep references one level deep.
 
-**SKILL.md ↔ reference file relationship**: The SKILL.md must explain each topic it covers well enough for the agent to act on it — references supplement, they don't replace. Each reference file must be focused on exactly one topic: it is a reference collection, not a secondary SKILL.md. Keep reference files specific. If a reference file is growing long or covering multiple concerns, split it or fold the essential parts back into SKILL.md.
+**SKILL.md ↔ references folder relationship**: The SKILL.md must explain each topic it covers well enough for the agent to act on it — references supplement, they don't replace. References live in a `references/` folder; each file covers exactly one topic. Never put everything in a single `reference.md` at the skill root. If a reference file is growing long or covering multiple concerns, split it into separate files in the folder, or fold the essential parts back into SKILL.md.
 
 ### 3. Set Appropriate Degrees of Freedom
 
@@ -229,7 +233,7 @@ When a skill describes a process or workflow, **you must verify it yourself** be
 
 ### Structure
 - [ ] Opening section is a broad intro with links to all topics and reference files
-- [ ] Each reference file covers exactly one topic — concise, not a second SKILL.md
+- [ ] References live in a `references/` folder — each file covers exactly one topic, not a second SKILL.md
 - [ ] File references are one level deep
 - [ ] Progressive disclosure used appropriately
 - [ ] Scripts cover complex actions and are versatile (no simple command wrappers)
