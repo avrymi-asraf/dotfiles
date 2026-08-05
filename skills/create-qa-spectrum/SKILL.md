@@ -143,3 +143,15 @@ uv run scripts/create_spectrum_dataset.py upload \
 3. **Hugging Face Hub Authentication**:
    Using `push_to_hub` without providing the write token or setting `HF_TOKEN` will fail.
    *Solution*: Read the token explicitly from the `HF_TOKEN` environment variable and pass it to functions. Never commit, log, or hardcode it.
+
+
+
+
+
+EBCHEZ6170LTO.2025-11-11-08.ad811b2b.gz
+EBCHEZ6170LTO.2025-11-11-08.bda65713.gz
+EBCHEZ6170LTO.2025-11-11-08.c0f23319.gz
+EBCHEZ6170LTO.2025-11-11-08.e8fa87f1.gz
+EBCHEZ6170LTO.2025-11-11-09.1150660b.gz
+EBCHEZ6170LTO.2025-11-11-09.17e31e15.gz
+EBCHEZ6170LTO.2025-11-11-09.23e49958.gz

@@ -156,13 +156,15 @@ Key principles:
 1. **Read the full skill** — understand its structure, style, and voice.
 2. **Integrate naturally** — new content must match existing style and flow.
 3. **Focus on what matters about the concept** — not project details, not obvious things.
-4. **Stay under 300 lines** — trim elsewhere if adding content.
+4. **Keep it connected** — preserve and add cross-links to related skills (prerequisites, successors, companions); a skill that points nowhere leaves the agent stranded mid-workflow.
+5. **Stay under 300 lines** — trim elsewhere if adding content.
 
 ### Creating a New Skill
 When a concept deserves its own skill:
 1. Load `manage-skills` for the full creation workflow.
 2. Ask: what are the essential things about this concept? What would cause mistakes if not known?
 3. Write for any project, not just the current one.
+4. Connect it — name the skills it depends on, feeds into, and pairs with, and add it to the project's dependency map / routing table so the agent can discover it.
 
 </Skill-Improvement>
 

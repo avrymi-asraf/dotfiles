@@ -13,6 +13,7 @@ Skills are markdown files that teach agents how to perform specific tasks. This 
 - **Use [Examples]** to see concrete implementations.
 - **Use [Writing-Descriptions]** to write effective trigger conditions (WHAT and WHEN).
 - **Use [Core-Authoring-Principles]** for the primary rules of skill-writing (progressive disclosure, brevity).
+- **Use [Connecting-Skills]** to wire a skill into the ecosystem — its prerequisites, successors, and companions. Connecting skills is one of the most important parts of authoring one.
 - **Use [Scripting]** to understand when and how to build versatile internal scripts.
 - **Use [Anti-Patterns-and-Common-Mistakes]** to avoid typical pitfalls.
 - **Use [Creating-a-New-Skill]** and **[Updating-an-Existing-Skill]** for end-to-end workflows.
@@ -166,6 +167,28 @@ The context window is shared. Every token competes for space. The agent is alrea
 
 </Core-Authoring-Principles>
 
+<Connecting-Skills>
+
+## Connecting Skills — The Most Important Authoring Move
+
+A skill is never an island. The single biggest factor in whether a skill actually gets used is how well it is **wired into the rest of the ecosystem**. An agent rarely finishes a task with one skill — it moves through a chain of them. If a skill does not tell the agent where to go next, the agent stalls mid-workflow even when the right skill already exists.
+
+Every skill should make its place in the ecosystem explicit by naming three kinds of neighbours:
+
+- **Prerequisites** — skills that must run first (e.g. `cdn-backup` before `deploy`).
+- **Successors** — skills the agent hands off to next (e.g. `deploy` → `testing`).
+- **Companions** — skills routinely used alongside this one, sharing data or context (e.g. `cdn-etl` ↔ `grafana-alerts`).
+
+Rules for connecting:
+1. **Name the actual skill in backticks** so its trigger terms are present and the agent can load it.
+2. **Say when to hand off**, not just that a link exists — "after editing the config, use `deploy` to push it."
+3. **Make links bidirectional** — if A points to B as its next step, B should name A as its prerequisite.
+4. **Update the ecosystem map** — add the skill and its edges to the project's dependency map / routing table (e.g. `AGENTS.md`) so the connection is discoverable from outside the skill.
+
+A skill with no inbound or outbound links is a red flag: it usually means the skill is mis-scoped, or the surrounding skills were never updated to point at it.
+
+</Connecting-Skills>
+
 <Scripting>
 
 When a skill needs automation or tooling, use scripts. Scripts are explicit, portable, and easy to audit. Place them in `scripts/` and invoke them from the skill instructions.
@@ -185,6 +208,7 @@ When a skill needs automation or tooling, use scripts. Scripts are explicit, por
 - **Time-sensitive info**: Use "Current method" / "Old patterns (deprecated)" sections
 - **Inconsistent terminology**: Pick one term and use it throughout
 - **Vague names**: Use `processing-pdfs`, not `helper` or `utils`
+- **Island skills**: a skill with no links to related skills. Always name its prerequisites, successors, and companions, and add it to the dependency map (see [Connecting-Skills])
 </Anti-Patterns-and-Common-Mistakes>
 
 
@@ -194,7 +218,8 @@ When creating a new skill, follow these steps:
 1. **Discovery**: Gather purpose, location, triggers, constraints, existing patterns
 2. **Design**: Draft name, write description (with WHAT + WHEN), outline sections, identify supporting files
 3. **Implement**: Create directory, write SKILL.md with frontmatter, create supporting files
-4. **Verify**: Run the checklist below
+4. **Connect**: Wire it into the ecosystem — name its prerequisite/successor/companion skills and add it to the dependency map / routing table (see [Connecting-Skills])
+5. **Verify**: Run the checklist below
 </Creating-a-New-Skill>
 ---
 
@@ -238,6 +263,7 @@ When a skill describes a process or workflow, **you must verify it yourself** be
 - [ ] Progressive disclosure used appropriately
 - [ ] Scripts cover complex actions and are versatile (no simple command wrappers)
 - [ ] Workflows have clear steps
+- [ ] Skill is connected — names its prerequisite, successor, and companion skills and is added to the dependency map / routing table
 - [ ] Processes have been walked through and verified end-to-end
 
 ### Update-Specific
