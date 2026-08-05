@@ -12,3 +12,5 @@ Code should be elegant, cleverness, tricks, sophisticated things should not be i
 Uniformity of concepts and names - the choice of names is very important. If a component in the system has a name, that same name must be preserved every time it is mentioned, everywhere it appears. One concept, one name. This is what makes code easy to understand for someone reading it from the outside.
 For example, if a service has tests and dedicated auxiliary functions that support those tests, the same name should run through all of them - the service, its tests, and its helpers - so the reader quickly understands what the auxiliary functions serve. Do not invent a new synonym for something that already has a name; reusing the established name is clarity, inventing variants is confusion.
 The way of working is - building something, once it is assembled - you make sure that it actually works and continue.
+This is a research and development project, it is critical that it be clean. There is no need to maintain backward compatibility at all.
+We will always strive for there to be only one clear and direct way to use the code. We will only deviate from this when necessary.

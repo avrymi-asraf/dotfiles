@@ -2,7 +2,14 @@
 name: project-agent-systems
 description: Build and document project-local agent, skill, MCP, and memory setups across OpenCode, VS Code/Copilot, and Codex without using user/global settings.
 ---
-
+<project-agent-systems>
+This skill covers best practices for designing and documenting project-local agent systems, including repository-local agents, skills, MCP servers, prompts, custom instructions, and agent memory. The focus is on ensuring that projects are set up in a way that is compatible with popular agent platforms while avoiding assumptions about platform behavior or committing sensitive information.
+</project-agent-systems>
+  
+<project-agent-systems-components>
+readme: the main file for use this project.
+AGENT.md: a common file for OpenCode agents.
+</project-agent-systems-components>
 # Project-local agent systems
 
 Use this skill when designing or documenting repository-local agents, skills, MCP servers, prompts, custom instructions, or agent memory. The default is always project/workspace-local setup only.

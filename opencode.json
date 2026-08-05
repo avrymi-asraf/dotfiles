@@ -17,7 +17,7 @@
             "type": "remote",
             "url": "https://mcp.context7.com/mcp",
             "headers": {
-                "CONTEXT7_API_KEY": "ctx7sk-00e693c6-0095-4e51-9fd3-cc979fd3dc7c"
+                "CONTEXT7_API_KEY": "ctx7sk-4ad4a3c8-9c61-4886-9d30-01de474d43be"
             },
             "enabled": true
         },
@@ -29,7 +29,7 @@
                 "skills/gemini-deep-research/mcp-server.py"
             ],
             "environment": {
-                "GOOGLE_API_KEY": "AIzaSyBxnkySpuFMo2LeWqywD2mUvkYKjDb490U"
+                "GOOGLE_API_KEY": "AIzaSyBv-bx45mqitIccs_NHC4ybffcUKdy05sU"
             },
             "enabled": true
         }
