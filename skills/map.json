@@ -1,5 +1,19 @@
 {
     "hosts": {
+        "MEWL-5CD4305QXX/avreymi": [
+            {
+                "location": "~/reasoning-pruning/.agents/skills",
+                "skills": [
+                    "architecture-map",
+                    "coding-principles",
+                    "create-qa-spectrum",
+                    "manage-skills",
+                    "project-agent-systems",
+                    "code-as-tools",
+                    "colab-cli"
+                ]
+            }
+        ],
         "MEWL-5CD4305QXX/user": [
             {
                 "location": "/home/user/work/cdns/cdns-grafana/.github/skills",
