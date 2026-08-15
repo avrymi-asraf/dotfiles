@@ -63,6 +63,12 @@ In research and data exploration, qualitative visual inspection is as critical a
 - Visualizers should accept the exact structured objects returned by the tools (e.g. `render_diff(trace, decision)`, `render_comparison(base, pruned)`).
 - Make visual output directly renderable inside notebook cells (`IPython.display.HTML`), in the terminal (via Rich/ANSI), and optionally via lightweight interactive viewers (Gradio/Streamlit) for deep inspection.
 
+**8. Live Execution & Full Observability (Strict Invariant).**
+The notebook is the transparent, interactive window into your system.
+- **Never substitute real tools with hardcoded mock data**: Exploration and data generation notebooks must ALWAYS call and execute the real library tools with real models and prompts.
+- **Immediate Feedback Loop**: When prompts, models, segmenters, or decision algorithms change in the codebase, the notebook must immediately reflect those changes upon execution.
+- **Transparent intermediate data**: Expose the real objects (`ReasoningTrace`, `PruneDecision`, `TransitionExample`) at every stage so the user can observe exactly how the data is transformed.
+
 ## The design-time check
 
 Before writing code, and again before adding to an existing set, ask explicitly:
@@ -89,6 +95,7 @@ If (3) fails, the design is wrong — fix it before implementing.
 | `run_everything()` that does all the steps | Split at the points where the user would want to look at intermediate results |
 | Functions that must be called in a fixed order | Pass state explicitly; make each callable alone |
 | `analyze_v2`, `analyze_new`, `analyze_final` | One tool, one parameter |
+| Hardcoded mock traces/decisions in notebooks | Call the real tools (`generate_trace`, `find_first_skip`, etc.) live |
 | A docstring restating the function name | Say when to use it and what it assumes |
 | Configuration flags accumulating on one tool | The seam is wrong — split it |
 | Logic reachable only through the CLI entry point | Put it in a tool; the CLI just calls it |

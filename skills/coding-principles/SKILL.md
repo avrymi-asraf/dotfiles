@@ -14,3 +14,4 @@ For example, if a service has tests and dedicated auxiliary functions that suppo
 The way of working is - building something, once it is assembled - you make sure that it actually works and continue.
 This is a research and development project, it is critical that it be clean. There is no need to maintain backward compatibility at all.
 We will always strive for there to be only one clear and direct way to use the code. We will only deviate from this when necessary.
+Observability and Ground Truth Execution: Never substitute real logic or live execution with hardcoded mock data in notebooks, exploration scripts, or evaluation workflows. Every data transformation must run through the real code path so that changes to models, prompts, parameters, or algorithms immediately produce observable results.
