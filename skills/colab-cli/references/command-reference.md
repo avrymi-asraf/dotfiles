@@ -1,165 +1,154 @@
 # Google Colab CLI Command Reference
 
-This document provides a comprehensive reference for the official `google-colab-cli` tool.
+This document provides a comprehensive reference for all commands and options in `google-colab-cli`.
 
 ---
 
-## 1. Installation & Environment Setup
+## 1. Global Options
 
-### Primary Installation (Recommended)
-```bash
-uv tool install google-colab-cli
-```
+Global options must precede the subcommand: `colab [GLOBAL_OPTIONS] COMMAND [ARGS...]`
 
-### Alternative Installation
-```bash
-pip install google-colab-cli
-```
-
-### Verification
-```bash
-colab version
-colab --help
-```
-
-> **Note:** Supported on Linux and macOS. Windows requires WSL2.
+| Option | Flag | Description | Default |
+|---|---|---|---|
+| `--auth` | | Authentication strategy: `adc` or `oauth2` | `adc` |
+| `--client-oauth-config` | `-c` | Path to client OAuth config JSON | `~/.colab-cli-oauth-config.json` |
+| `--config` | | Path to session state file | `~/.config/colab-cli/sessions.json` |
+| `--logtostderr` | | Log all output to stderr | `False` |
 
 ---
 
-## 2. Authentication (`colab auth`)
-
-| Command | Description |
-|---|---|
-| `colab auth login` | Initiates browser-based OAuth2 flow to log in |
-| `colab auth login --auth=adc` | Authenticates using Application Default Credentials (GCP) |
-| `colab auth status` | Displays active credentials, expiration, and connected Google account |
-| `colab auth logout` | Clears stored session tokens and OAuth credentials |
-
----
-
-## 3. Session & Runtime Management
+## 2. Session Management Commands
 
 ### `colab new`
-Provisions a persistent remote runtime. It remains active until explicitly stopped or hitting idle timeouts.
-
+Allocates a new CPU, GPU, or TPU VM runtime.
 ```bash
 colab new [OPTIONS]
 ```
+- `-s, --session <NAME>`: Custom name for the session (recommended to avoid auto-generated hex IDs).
+- `--gpu <TYPE>`: Request GPU accelerator (`T4`, `L4`, `G4`, `A100`, `H100`).
+- `--tpu <TYPE>`: Request TPU accelerator (`v5e1`, `v6e1`).
+- *Note:* If both `--gpu` and `--tpu` are omitted, a standard CPU runtime is provisioned.
 
-**Options:**
-- `-s, --session <NAME>`: Custom name or alias for the session (default: auto-generated ID).
-- `--gpu <TYPE>`: Request GPU hardware accelerator. Supported: `T4`, `L4`, `V100`, `A100`, `H100`.
-- `--tpu <TYPE>`: Request TPU accelerator. Supported: `v2-8`, `v3-8`, `v5e1`, `v6e1`.
-- `--ram <standard|high>`: Select system memory tier (standard ~12GB, high ~50GB).
-- `--disk <standard|high>`: Select disk storage tier.
-
-### `colab list`
-Lists all active and provisioned sessions with their IDs, runtime types, hardware accelerators, and uptime.
+### `colab sessions`
+Lists all active sessions on the backend and synchronizes local metadata.
 ```bash
-colab list
+colab sessions
+```
+
+### `colab status`
+Displays hardware accelerator, IDLE/BUSY state, and last executed command.
+```bash
+colab status [-s NAME]
+```
+
+### `colab restart-kernel`
+Restarts the active session's Jupyter kernel without releasing the VM instance.
+```bash
+colab restart-kernel [-s NAME]
 ```
 
 ### `colab stop`
-Terminates a session and releases the underlying compute instance to stop billing/quota usage.
+Terminates the remote VM and shuts down its keep-alive background daemon.
 ```bash
-colab stop <SESSION_ID_OR_NAME>
-colab stop --all
+colab stop [-s NAME]
 ```
+
+### `colab url`
+Prints or opens a browser URL that attaches the Colab web UI directly to the existing CLI VM and kernel.
+```bash
+colab url [-s NAME] [--open] [--host <ORIGIN>]
+```
+- `--open`: Opens the attachment URL directly in the default web browser.
 
 ---
 
-## 4. Execution Commands
+## 3. Code Execution Commands
 
-### `colab run` (Ephemeral / Fire-and-Forget)
-Creates an ephemeral instance, runs a script or notebook, streams stdout/stderr locally, and automatically terminates the VM upon completion.
-
+### `colab run` (Ephemeral Runner)
+Allocates a fresh VM, runs a script or notebook with arguments, and tears down the VM upon completion.
 ```bash
-colab run [OPTIONS] <FILE_OR_COMMAND>
+colab run [OPTIONS] SCRIPT_PATH [ARGS...]
 ```
-
-**Options:**
-- `--gpu <TYPE>`: Hardware accelerator (`T4`, `A100`, etc.).
+- `--gpu <TYPE>`: Hardware accelerator.
 - `--tpu <TYPE>`: Hardware accelerator.
-- `--keep`: Prevents automatic deallocation after execution finishes (keeps VM alive).
-- `-s, --session <NAME>`: Name for the ephemeral session.
+- `--keep`: Preserves the VM on completion instead of terminating it.
+- `-s, --session <NAME>`: Optional session name.
 
-**Examples:**
+### `colab exec` (Persistent Kernel Execution)
+Executes Python code or a notebook inside an active session. Kernel variables and loaded modules persist across calls.
 ```bash
-# Run a training script with T4 GPU and auto-terminate
-colab run --gpu T4 train.py
+colab exec [OPTIONS]
+```
+- `-s, --session <NAME>`: Target session name.
+- `-f, --file <PATH>`: Local `.py` or `.ipynb` file to execute remotely (read locally and streamed).
+- `--timeout <FLOAT>`: Execution timeout in seconds (default: `30.0`).
+- `--output-image <PATH>`: Save intercepted plot/figure outputs directly to a local image file.
 
-# Run a Jupyter notebook
-colab run --gpu A100 experiments.ipynb
-
-# Inline one-liner
-colab run --gpu T4 "python -c 'import torch; print(torch.cuda.is_available())'"
+### `colab repl` (Interactive Python REPL)
+Starts an interactive Python REPL directly connected to the remote Jupyter kernel.
+```bash
+colab repl [-s NAME] [--output-image PATH]
 ```
 
-### `colab exec` (Persistent Session Execution)
-Executes code or scripts within an already running persistent session. Kernel state (variables, modules) is preserved across multiple calls.
-
+### `colab console` (Raw Terminal Shell)
+Connects to an interactive tmux/bash session in `/content` on the remote VM.
 ```bash
-# Execute local file remotely in session 'my-session'
-colab exec -s my-session -f script.py
-
-# Execute arbitrary shell / python command
-colab exec -s my-session "pip install -q transformers && python evaluate.py"
+colab console [-s NAME]
 ```
 
 ---
 
-## 5. Interactive Access (`ssh` & `repl`)
+## 4. File & Package Operations
 
-| Command | Purpose | Usage |
-|---|---|---|
-| `colab ssh` | Opens a WebSocket-based interactive shell in `/content` | `colab ssh -s my-session` |
-| `colab repl` | Starts an interactive Python REPL connected to the Jupyter kernel | `colab repl -s my-session` |
-| `colab console` | Attaches to standard console output stream | `colab console -s my-session` |
+All remote paths default to `/content`.
 
----
-
-## 6. File & Storage Operations
-
-The remote root working directory is `/content`.
-
+### `colab install`
+Installs packages inside the VM using `uv pip install --system` (falls back to `pip`).
 ```bash
-# Upload local file/folder to remote runtime
-colab upload -s my-session ./local_data /content/data
-
-# Download remote artifacts/checkpoints to local machine
-colab download -s my-session /content/checkpoints ./local_checkpoints
-
-# List files in remote directory
-colab ls -s my-session /content
-
-# Mount Google Drive into /content/drive
-colab drivemount -s my-session
+colab install [-s NAME] [PACKAGES...] [-r REQUIREMENTS_FILE]
 ```
 
----
-
-## 7. Port Forwarding & Web UIs
-
-Tunnel remote web services (e.g. TensorBoard, Gradio, FastAPI) to your local machine:
-
+### `colab upload`
+Uploads a local file or directory to the remote VM.
 ```bash
-# Forward remote port 7860 (Gradio) to local port 7860
-colab port-forward -s my-session 7860:7860
+colab upload [-s NAME] LOCAL_PATH REMOTE_PATH
+```
 
-# Forward TensorBoard (port 6006)
-colab port-forward -s my-session 6006:6006
+### `colab download`
+Downloads a file or directory from the remote VM to the local system.
+```bash
+colab download [-s NAME] REMOTE_PATH LOCAL_PATH
+```
+
+### `colab edit`
+Opens a remote file in your local `$EDITOR` for in-place modification.
+```bash
+colab edit [-s NAME] REMOTE_PATH
+```
+
+### `colab ls` / `colab rm`
+Lists or deletes files on the remote VM.
+```bash
+colab ls [-s NAME] [REMOTE_PATH]
+colab rm [-s NAME] REMOTE_PATH
+```
+
+### `colab drivemount`
+Mounts Google Drive at `/content/drive` (interactive).
+```bash
+colab drivemount [-s NAME] [PATH]
 ```
 
 ---
 
-## 8. Shebang Script Support
+## 5. History & Exporting (`colab log`)
 
-You can add a shebang directly to Python scripts so they execute remotely on Colab when run locally:
-
-```python
-#!/usr/bin/env -S colab run --gpu T4
-import torch
-
-print(f"Device: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU'}")
+Views or exports the session execution history:
+```bash
+colab log [-s NAME] [-n LINES] [-t EVENT_TYPE] [-o OUTPUT_PATH]
 ```
-Make executable: `chmod +x script.py && ./script.py`
+The file format is automatically selected based on the extension of `-o`:
+- `.ipynb` — Jupyter Notebook
+- `.md` — Markdown summary report
+- `.jsonl` — Raw structured JSON logs
+- `.txt` — Plain text log

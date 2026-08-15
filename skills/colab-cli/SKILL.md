@@ -5,27 +5,26 @@ description: Provision Google Colab cloud runtimes, execute remote Python script
 
 <colab-cli>
 
-Google Colab CLI (`google-colab-cli`) is the official Google tool for controlling Colab cloud runtimes directly from the local terminal and agentic environments. It allows provisioning GPUs/TPUs, running Python scripts and Jupyter notebooks remotely with real-time output streaming, managing remote files, port-forwarding web interfaces, and managing session lifecycles without opening a browser.
+Google Colab CLI (`google-colab-cli`) connects local terminals and autonomous agents directly to Google Colab cloud runtimes. It enables allocating CPU, GPU (T4, L4, G4, A100, H100), or TPU (v5e1, v6e1) instances, exploring data interactively, executing Python scripts/notebooks remotely with real-time output streaming, transferring files, and managing VM lifecycles without opening a browser.
 
 ### Topics Covered
-- **Use [Installation-and-Auth]** for installing the official package and authenticating sessions.
-- **Use [Runtime-Management]** for provisioning, listing, and stopping GPU/TPU instances.
-- **Use [Execution-Modes]** for ephemeral (`run`), persistent (`exec`), and interactive (`ssh`/`repl`) execution.
-- **Use [File-and-Data-Transfer]** for uploading datasets, downloading artifacts, and mounting Google Drive.
-- **Use [Port-Forwarding-and-Web-UIs]** to tunnel remote TensorBoard, Gradio, and web endpoints locally.
-- **Use [Agent-Automation-Patterns]** for headless scripts, cleanup traps, and automated agent pipelines.
-- **Use [Anti-Patterns-and-Common-Mistakes]** to avoid unexpected costs, path errors, and credential traps.
-- **Use [Examples]** for end-to-end practical workflows.
-- **Use [Connecting-Skills]** to understand ecosystem interactions.
-- Reference [Command Reference](references/command-reference.md) and [Agent Workflows](references/agent-workflows.md) for complete flag documentation.
+- **Use [Installation-and-Auth]** for installing `google-colab-cli` and configuring ADC / OAuth2 scopes.
+- **Use [Runtime-Management]** for provisioning (`new`), listing (`sessions`), inspecting (`status`), and stopping sessions.
+- **Use [Interactive-Exploration]** for interactive data probing via REPL, console shell, and Colab web UI attachment (`url`).
+- **Use [Execution-Modes]** for ephemeral jobs (`run`), persistent kernel execution (`exec`), and shebang scripts.
+- **Use [File-and-Package-Management]** for transferring datasets, editing remote files (`edit`), and installing packages (`install`).
+- **Use [Colab-Notebook-Bootstrapping]** for self-cloning and setting up repository dependencies when notebooks run in Colab kernel environments.
+- **Use [Agent-Automation-Patterns]** for headless scripts, stdout/stderr streams, error codes, and session isolation.
+- **Use [Anti-Patterns-and-Common-Mistakes]** to avoid auth traps, scope errors, and idle resource costs.
+- **Use [Examples]** for practical, end-to-end interactive and batch recipes.
+- Reference [Command Reference](references/command-reference.md) and [Agent Workflows](references/agent-workflows.md) for full flag details.
 
 </colab-cli>
 
 <Installation-and-Auth>
 
 ### Package Installation
-Always install the official `google-colab-cli` package (not legacy third-party packages):
-
+Install the official Google Colab CLI tool:
 ```bash
 # Recommended installation via uv
 uv tool install google-colab-cli
@@ -34,179 +33,284 @@ uv tool install google-colab-cli
 pip install google-colab-cli
 ```
 
-### Authentication
-Authenticate your terminal before launching compute instances:
-```bash
-# Interactive browser OAuth2 login
-colab auth login
+### Authentication Strategies
+The CLI supports two authentication modes via the global flag `--auth={adc,oauth2}` (default is `adc`).
 
-# Headless / GCP Application Default Credentials
-colab auth login --auth=adc
+1. **Application Default Credentials (ADC) — Recommended for Headless & Agents**:
+   The Colab backend requires four specific scopes. Log in once with `gcloud`:
+   ```bash
+   gcloud auth application-default login \
+     --scopes=openid,\
+   https://www.googleapis.com/auth/cloud-platform,\
+   https://www.googleapis.com/auth/userinfo.email,\
+   https://www.googleapis.com/auth/colaboratory
+   ```
+   - `userinfo.email`: Required for session backend (`colab.research.google.com`).
+   - `colaboratory`: Required for keep-alive RPCs (`colab.pa.googleapis.com`).
+   - `openid` + `cloud-platform`: Required by `gcloud`.
 
-# Verify active login status
-colab auth status
-```
+2. **OAuth2 Flow**:
+   Triggers browser consent on first use:
+   ```bash
+   colab --auth=oauth2 sessions
+   ```
+
+3. **Verify Auth**:
+   - `colab sessions`: Read-only check for server connectivity.
+   - `colab whoami`: Debug command displaying active email, audience, scopes, and token expiration.
+
+> [!NOTE]
+> `colab auth` is for injecting *VM-side* GCP credentials into the running kernel for BigQuery/GCS. It is **not** used to authenticate the local CLI itself.
 
 </Installation-and-Auth>
 
 <Runtime-Management>
 
-Colab CLI supports two runtime lifecycle patterns: **Persistent Sessions** and **Ephemeral Execution**.
-
-### 1. Persistent Sessions (`colab new` & `colab stop`)
-Use when you need to upload datasets, run multiple scripts sequentially, or keep variables in memory.
-
+### 1. Persistent Session Management (`colab new` / `colab stop`)
+Maintains runtime state and kernel memory across multiple commands:
 ```bash
-# Provision session with a specific GPU accelerator (T4, L4, A100, H100)
-colab new --session exp-01 --gpu T4
+# Provision named session (always specify -s to avoid random IDs)
+colab new -s explore --gpu T4
 
-# Provision with TPU (v2-8, v3-8, v5e1) and high RAM
-colab new --session tpu-exp --tpu v5e1 --ram high
+# Provision with TPU and high RAM
+colab new -s tpu-run --tpu v5e1
 
-# List active sessions and compute status
-colab list
+# List active sessions and prune stale backend records
+colab sessions
 
-# Stop session immediately to release billable resources
-colab stop exp-01
+# Show hardware, memory, and kernel status
+colab status -s explore
+
+# Restart Jupyter kernel while keeping the VM allocated
+colab restart-kernel -s explore
+
+# Stop and release VM resources
+colab stop -s explore
 ```
 
-### 2. Ephemeral Execution (`colab run`)
-Automatically provisions a fresh runtime, executes the script/notebook, streams stdout/stderr, and deallocates upon exit:
+Supported accelerators:
+- `--gpu`: `T4`, `L4`, `G4`, `A100`, `H100` (defaults to CPU if omitted).
+- `--tpu`: `v5e1`, `v6e1`.
 
+### 2. Ephemeral Job Runner (`colab run`)
+Provisions a fresh VM, runs the script/notebook, streams output, and automatically terminates the VM:
 ```bash
-# Provision, run, and auto-terminate
-colab run --gpu T4 train_model.py
+# Run script with GPU accelerator and auto-terminate
+colab run --gpu T4 train.py
 ```
 
 </Runtime-Management>
 
+<Interactive-Exploration>
+
+Colab CLI provides four complementary ways to interactively probe data, debug models, and test code:
+
+### 1. Interactive Python REPL (`colab repl`)
+Drops directly into a live Python shell on the remote Colab VM. All variables, imports, and loaded datasets remain in kernel memory between commands:
+```bash
+colab repl -s explore
+# Intercept generated plots/images to a local path:
+colab repl -s explore --output-image ./latest_plot.png
+```
+
+### 2. Full Remote Shell Console (`colab console`)
+Connects to an interactive tmux/bash session in `/content` on the remote instance:
+```bash
+colab console -s explore
+# Inside console: run ipython, check nvidia-smi, or inspect files
+```
+
+### 3. Attach Colab Web Notebook to CLI VM (`colab url`)
+Connects the Google Colab web UI directly to the existing CLI-created VM and kernel, without allocating duplicate resources:
+```bash
+# Print attachment URL or open directly in browser
+colab url -s explore --open
+```
+
+### 4. Step-by-Step Code Probing (`colab exec`)
+Because `colab exec` targets the persistent kernel, state accumulates across calls:
+```bash
+# Step 1: Load data once into memory
+echo "import pandas as pd; df = pd.read_csv('/content/data.csv')" | colab exec -s explore
+
+# Step 2: Query or probe the loaded DataFrame
+echo "print(df.describe())" | colab exec -s explore
+
+# Step 3: Export the entire interactive history to a notebook or markdown report
+colab log -s explore -o exploration_report.ipynb
+```
+
+</Interactive-Exploration>
+
 <Execution-Modes>
 
-| Mode | Command | Behavior | When to Use |
-|---|---|---|---|
-| **Ephemeral Run** | `colab run --gpu T4 script.py` | Starts VM, runs script, streams output, terminates VM | Batch jobs, CI/CD, one-off evaluations |
-| **Session Exec** | `colab exec -s <session> -f script.py` | Runs script inside existing session; preserves state | Iterative experiments, multi-step runs |
-| **Interactive SSH** | `colab ssh -s <session>` | Opens WebSocket-based interactive shell in `/content` | Debugging, inspecting files, terminal tools |
-| **Interactive REPL** | `colab repl -s <session>` | Interactive Python REPL connected to Jupyter kernel | Probing model weights, exploring variables |
+| Mode | Command | Behavior |
+|---|---|---|
+| **Ephemeral Run** | `colab run --gpu T4 script.py [args]` | Full lifecycle: new VM → execute → teardown |
+| **Session Exec** | `colab exec -s <name> -f script.py` | Transmits local file to remote kernel; keeps state |
+| **Piped Exec** | `echo "print(1)" \| colab exec -s <name>` | Executes piped code on remote kernel |
+| **Notebook Exec** | `colab exec -s <name> -f notebook.ipynb` | Runs cells, writes output to `notebook_output.ipynb` |
+| **Shell Console** | `colab console -s <name>` | Raw interactive TTY / tmux shell on remote VM |
+| **Interactive REPL** | `colab repl -s <name>` | Python REPL on remote kernel (requires TTY or piped EOF) |
 
-### Shebang Usage
-Make scripts self-executing on Colab GPUs by adding a shebang:
+### Shebang Execution Support
+Add a shebang to make Python scripts automatically run on cloud hardware:
 ```python
 #!/usr/bin/env -S colab run --gpu T4
 import torch
-print("GPU:", torch.cuda.get_device_name(0))
+print("CUDA Device:", torch.cuda.get_device_name(0))
 ```
+Make executable with `chmod +x script.py` and run `./script.py`.
 
 </Execution-Modes>
 
-<File-and-Data-Transfer>
+<File-and-Package-Management>
 
-The remote working root directory is always `/content`.
-
-```bash
-# Upload local code / data to remote instance
-colab upload -s my-session ./data /content/data
-
-# Download remote model checkpoints / logs to local machine
-colab download -s my-session /content/checkpoint.pt ./checkpoints/
-
-# List remote files
-colab ls -s my-session /content
-
-# Mount Google Drive into /content/drive
-colab drivemount -s my-session
-```
-
-</File-and-Data-Transfer>
-
-<Port-Forwarding-and-Web-UIs>
-
-Forward remote services (TensorBoard, Gradio, Streamlit, FastAPI) to your local machine:
+The remote working directory is always `/content`.
 
 ```bash
-# Forward Gradio (7860) or Streamlit (8501)
-colab port-forward -s my-session 7860:7860
+# Install packages in the remote VM using high-performance uv
+colab install -s explore torch transformers datasets
+colab install -s explore -r requirements.txt
 
-# Forward TensorBoard (6006)
-colab port-forward -s my-session 6006:6006
+# Upload local files or directories
+colab upload -s explore ./local_dir /content/remote_dir
+
+# Download remote artifacts or checkpoints
+colab download -s explore /content/checkpoint.pt ./checkpoints/
+
+# Edit remote files in-place using local $EDITOR
+colab edit -s explore /content/remote_dir/config.json
+
+# List and delete remote files
+colab ls -s explore /content
+colab rm -s explore /content/temp_data.csv
+
+# Mount Google Drive to /content/drive (interactive)
+colab drivemount -s explore
 ```
 
-Access the service locally at `http://localhost:<port>`.
+</File-and-Package-Management>
 
-</Port-Forwarding-and-Web-UIs>
+<Colab-Notebook-Bootstrapping>
+
+### Self-Cloning & Setup for Notebooks Running in Colab Kernel
+
+When a notebook is opened directly in Google Colab (e.g., from a GitHub badge or uploaded without local workspace files), the remote VM `/content` environment does not contain the repository code or package files.
+
+To make notebooks immediately executable without manual user cloning, always include this self-bootstrapping pattern in the initial setup cell:
+
+```python
+import os
+import sys
+
+# 1. Detect Google Colab environment vs local workspace
+IN_COLAB = "google.colab" in sys.modules or os.path.exists("/content")
+
+if IN_COLAB:
+    print("🚀 Running on Google Colab. Setting up repository and environment...")
+    REPO_DIR = "/content/<repo-name>"
+    if not os.path.exists(REPO_DIR):
+        !git clone https://github.com/<owner>/<repo-name>.git {REPO_DIR}
+    %cd {REPO_DIR}
+    !pip install -q -e .
+    if REPO_DIR not in sys.path:
+        sys.path.insert(0, REPO_DIR)
+    print("✅ Repository cloned and package installed in editable mode!")
+else:
+    print("💻 Running in local workspace.")
+
+# 2. Import package modules
+import your_package as pkg
+```
+
+**Key Advantages:**
+1. **Zero-Configuration Colab Execution:** Users opening the notebook in Google Colab can run all cells sequentially without manual terminal cloning or environment setup.
+2. **Editable Installation (`pip install -q -e .`):** Automatically installs dependencies from `pyproject.toml` or `setup.py` and supports immediate edits to source files.
+3. **Local Safety:** Evaluates `IN_COLAB` as `False` in local Jupyter or VS Code kernels, avoiding unnecessary cloning or directory switching.
+
+</Colab-Notebook-Bootstrapping>
 
 <Agent-Automation-Patterns>
 
-When running unattended agent tasks, ensure robust lifecycle management:
+1. **Stream Separation**:
+   `colab run` writes CLI status logs to **stderr** and script output to **stdout**. Capturing stdout yields clean program output:
+   ```bash
+   colab run --gpu T4 eval.py > output.json 2> run.log
+   ```
 
-1. **Prefer `colab run` for atomic tasks**: Handles spin-up and teardown automatically.
-2. **Use Bash Exit Traps for persistent sessions**: Prevents idle GPU usage if an error occurs.
+2. **Exit Code Propagation**:
+   `colab run` and `colab exec` propagate the script's exit status (`sys.exit(0)` → 0, `sys.exit(1)` → 1). Check `$?` to detect remote script errors.
 
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-SESSION="agent-task-$(date +%s)"
-trap "colab stop $SESSION || true" EXIT
+3. **Guaranteed Resource Teardown with Bash Traps**:
+   ```bash
+   #!/usr/bin/env bash
+   set -euo pipefail
+   SESSION="job-$(date +%s)"
+   trap "colab stop -s $SESSION || true" EXIT
 
-colab new -s "$SESSION" --gpu T4
-colab upload -s "$SESSION" ./src /content/src
-colab exec -s "$SESSION" "python /content/src/evaluate.py"
-colab download -s "$SESSION" /content/results.json ./results.json
-```
+   colab new -s "$SESSION" --gpu T4
+   colab install -s "$SESSION" torch transformers
+   colab exec -s "$SESSION" -f run_train.py
+   colab download -s "$SESSION" /content/model.pt ./model.pt
+   ```
 
-3. **Check Exit Codes**: `colab run` and `colab exec` pass through the remote script exit status. Inspect `$?` to detect remote failures.
+4. **Isolating Concurrent Agent Runs**:
+   Use `--config` to prevent concurrent agents from colliding on `~/.config/colab-cli/sessions.json`:
+   ```bash
+   colab --config /tmp/agent_session.json new -s agent-job --gpu T4
+   ```
 
 </Agent-Automation-Patterns>
 
 <Connecting-Skills>
 
-- **Prerequisites**: Use `coding-principles` to ensure clean script design before cloud execution.
-- **Companions**: Use `code-as-tools` to structure modular, notebook-compatible experimentation tools before dispatching them to remote Colab runtimes.
-- **Successors**: Use `manage-skills` when updating or extending this skill's capabilities.
+- **Prerequisites**: Use `coding-principles` for clean code structure.
+- **Companions**: Use `code-as-tools` to build modular, notebook-compatible experimentation tools before dispatching them to remote Colab runtimes.
+- **Successors**: Use `manage-skills` when updating or extending skill definitions.
 
 </Connecting-Skills>
 
 <Anti-Patterns-and-Common-Mistakes>
 
-| Anti-Pattern | Root Cause / Risk | Correct Approach |
+| Anti-Pattern | Root Cause | Correct Approach |
 |---|---|---|
-| Installing `colab-cli` instead of `google-colab-cli` | Unofficial or outdated community package | Always install `google-colab-cli` via `uv` or `pip` |
-| Leaving persistent sessions running indefinitely | Incurring compute charges or exhausting quota | Always run `colab stop <session>` or use `trap` / `colab run` |
-| Assuming local relative paths exist on remote | Remote environment has `/content` root | Always upload files first and reference `/content/<path>` |
-| Storing credentials inside code | Security leak | Use `colab auth login` or pass secrets via environment variables |
-| Launching heavy training with no output checkpoints | Network disconnect loses work | Regularly save checkpoints to `/content/` or Google Drive |
+| Running `colab auth` to fix local CLI 401/403 | Confusing VM GCP auth with CLI auth | Use `gcloud auth application-default login` with all 4 scopes |
+| Missing `-s <name>` on `colab new` | Auto-generates random 6-hex ID | Always name sessions explicitly (e.g. `-s exp01`) |
+| Manually uploading scripts before `colab exec` | Unnecessary overhead | `colab exec -f script.py` automatically reads and transmits locally |
+| Missing self-bootstrapping in Colab notebooks | `ModuleNotFoundError` when opened on Colab | Include the `IN_COLAB` git clone & editable install block in cell 1 |
+| Leaving persistent VMs running | Incurring compute quota burn | Use `colab run` (auto-teardown) or bash `trap "colab stop" EXIT` |
+| Calling interactive commands in headless scripts | Hanging non-interactive shells | Pipe EOF for `repl`/`console`; avoid interactive `drivemount` |
 
 </Anti-Patterns-and-Common-Mistakes>
 
 <Examples>
 
-### Complete End-to-End Evaluation Workflow
-
+### Interactive Probing & Experimentation Recipe
 ```bash
-# 1. Verify authentication
-colab auth status
+# 1. Provision a T4 GPU session
+colab new -s probe --gpu T4
 
-# 2. Provision a T4 GPU session
-colab new --session model-eval --gpu T4
+# 2. Install dependencies using uv inside VM
+colab install -s probe datasets transformers torch
 
-# 3. Upload project source code
-colab upload -s model-eval ./src /content/src
+# 3. Upload project modules
+colab upload -s probe ./src /content/src
 
-# 4. Install dependencies and run script
-colab exec -s model-eval "pip install -q transformers torch && python /content/src/eval.py --output /content/eval_metrics.json"
+# 4. Probing via REPL or sequential exec
+echo "import sys; sys.path.append('/content'); import src" | colab exec -s probe
+colab repl -s probe
 
-# 5. Download evaluation metrics locally
-colab download -s model-eval /content/eval_metrics.json ./eval_metrics.json
-
-# 6. Deallocate session immediately
-colab stop model-eval
+# 5. Export interactive work to notebook and tear down
+colab log -s probe -o exploration_session.ipynb
+colab stop -s probe
 ```
 
 </Examples>
 
 <References>
 
-- Consult [Command Reference](references/command-reference.md) for full argument lists, GPU/TPU accelerator flags, and options.
-- Consult [Agent Workflows](references/agent-workflows.md) for automated pipeline recipes and fault-tolerant agent execution templates.
+- [Command Reference](references/command-reference.md): Complete list of flags, subcommands, accelerators, and options.
+- [Agent Workflows](references/agent-workflows.md): Unattended pipeline scripts, error recovery, and batch recipes.
 
 </References>

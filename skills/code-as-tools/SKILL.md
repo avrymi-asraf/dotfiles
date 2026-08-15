@@ -55,6 +55,7 @@ Tools are tried and tested in Jupyter, not only behind a CLI. Every tool must be
 - Keep single calls interruptible and cheap enough to iterate on; expose the granularity that lets
   the user run one piece, look at it, and continue.
 - If a CLI is wanted, it is a thin shell over the same tools — never the only way in.
+- **Colab Kernel Self-Bootstrapping**: If notebooks are shared or run on Google Colab, include an auto-detecting setup block (`IN_COLAB = "google.colab" in sys.modules or os.path.exists("/content")`) that clones the repository and installs the package in editable mode (`pip install -q -e .`), so imports work out-of-the-box in both remote Colab and local kernels.
 
 **7. Stage-by-Stage Visualization.**
 In research and data exploration, qualitative visual inspection is as critical as quantitative metrics.
