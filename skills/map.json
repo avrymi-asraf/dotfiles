@@ -104,6 +104,18 @@
                     "coding-principles",
                     "llm-wiki"
                 ]
+            },
+            {
+                "location": "~/code/reasoning-pruning-agy/.agents/skills",
+                "skills": [
+                    "architecture-map",
+                    "coding-principles",
+                    "create-qa-spectrum",
+                    "manage-skills",
+                    "project-agent-systems",
+                    "code-as-tools",
+                    "colab-cli"
+                ]
             }
         ]
     }
