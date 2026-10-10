@@ -81,7 +81,40 @@ When an agent needs to perform multiple iterative actions (e.g. uploading datase
 
 ---
 
-## 3. Automation Script Template (Bash Trap for Cleanup)
+## 3. Interactive Notebook Cell Execution & In-Memory Probing
+
+When an agent needs to test a Jupyter notebook or run exploratory code iteratively:
+
+### Pattern: Live Cell Execution & In-Memory Probing
+1. **Provision persistent session**:
+   ```bash
+   colab new -s agent-probe --gpu T4
+   ```
+2. **Execute Full Notebook against Persistent Kernel**:
+   `colab exec` can take whole `.ipynb` files directly, run every cell sequentially, format markdown tables/outputs in terminal streams, and write out the executed notebook:
+   ```bash
+   colab exec -s agent-probe -f notebooks/01_explore_pruning.ipynb --timeout 300
+   ```
+   > **Note on Timeouts**: The default timeout for `colab exec` is `30.0` seconds. For tasks making LLM API calls or dataset downloads, always specify `--timeout 300` or higher.
+
+3. **Ad-hoc REPL In-Memory Probing**:
+   Because the kernel is persistent, all variables (datasets, models, traces) stay in remote GPU memory. An agent can immediately run one-liners or interactive verification blocks without re-running data ingestion:
+   ```bash
+   cat << 'EOF' | colab exec -s agent-probe
+   # Probe variables created in earlier cells:
+   print("In-memory dataset count:", len(hf_dataset))
+   print("Sample target continuation:", hf_dataset[0]["target_y"])
+   EOF
+   ```
+
+4. **Connect Web UI for User Inspection**:
+   ```bash
+   colab url -s agent-probe --open
+   ```
+
+---
+
+## 4. Automation Script Template (Bash Trap for Cleanup)
 
 ```bash
 #!/usr/bin/env bash

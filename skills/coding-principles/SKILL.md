@@ -15,3 +15,4 @@ The way of working is - building something, once it is assembled - you make sure
 This is a research and development project, it is critical that it be clean. There is no need to maintain backward compatibility at all.
 We will always strive for there to be only one clear and direct way to use the code. We will only deviate from this when necessary.
 Observability and Ground Truth Execution: Never substitute real logic or live execution with hardcoded mock data in notebooks, exploration scripts, or evaluation workflows. Every data transformation must run through the real code path so that changes to models, prompts, parameters, or algorithms immediately produce observable results.
+Integration & CLI Testing Over Unit Tests: Prioritize testing via live CLI commands, end-to-end integration tests, and real interactive tool executions. Do not create or run isolated, trivial unit tests (`pytest`, `unittest`).

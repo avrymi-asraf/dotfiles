@@ -44,18 +44,19 @@ Any concrete experiment is a short, readable script that calls the tools in sequ
 Keep that layer thin: if logic accumulates in the script, it belongs in a tool.
 The script should read like the description of the experiment.
 
-**6. The notebook is the field of experimentation — design for it.**
-Tools are tried and tested in Jupyter, not only behind a CLI. Every tool must be usable
-*as-is* from a notebook cell, with no wrapper and no entry-point ceremony. Concretely:
-
-- Import and call directly — no `argparse`, no `if __name__ == "__main__"` gate around the real logic.
-- Return objects, not printed text or exit codes. The caller inspects the return value in the next cell.
-- No `sys.exit()`, no process-level side effects, no swallowing exceptions — a traceback in a cell is useful.
-- Configuration arrives as arguments, not as env vars or a config file read at import time.
-- Keep single calls interruptible and cheap enough to iterate on; expose the granularity that lets
-  the user run one piece, look at it, and continue.
-- If a CLI is wanted, it is a thin shell over the same tools — never the only way in.
-- **Colab Kernel Self-Bootstrapping**: If notebooks are shared or run on Google Colab, include an auto-detecting setup block (`IN_COLAB = "google.colab" in sys.modules or os.path.exists("/content")`) that clones the repository and installs the package in editable mode (`pip install -q -e .`), so imports work out-of-the-box in both remote Colab and local kernels.
+**6. The Dual Paradigm: Notebooks for Humans, REPL/CLI for Agents.**
+Research systems require two complementary entry points serving two different users:
+- **Notebooks (`.ipynb`) are the Human Artifact**: Humans explore visually, read narrative markdown, inspect color-coded HTML diffs and Pandas tables, and develop scientific intuition. Notebooks must be self-contained, beautifully rendered, and runnable top-to-bottom in Google Colab / Jupyter without boilerplate.
+- **CLI / REPL (`colab exec`, `colab repl`) is the Agent Execution Engine**: Autonomous agents develop, test, debug, and probe hypotheses directly against the live persistent kernel memory via `colab-cli`. The agent runs cells or ad-hoc lines, inspects in-memory variable state, catches exceptions on real cloud hardware, applies fixes, and verifies the human-facing notebook end-to-end.
+- Concretely for tool design:
+  - Import and call directly — no `argparse`, no `if __name__ == "__main__"` gate around the real logic.
+  - Return objects, not printed text or exit codes. The caller inspects the return value in the next cell / REPL line.
+  - No `sys.exit()`, no process-level side effects, no swallowing exceptions — a traceback in a cell or REPL is useful.
+  - Configuration arrives as arguments, not as env vars or a config file read at import time.
+  - Keep single calls interruptible and cheap enough to iterate on; expose the granularity that lets
+    the user (or agent) run one piece, look at it, and continue.
+  - If a CLI is wanted, it is a thin shell over the same tools — never the only way in.
+  - **Colab Kernel Self-Bootstrapping & Secrets**: If notebooks are shared or run on Google Colab, include an auto-detecting setup block (`IN_COLAB = "google.colab" in sys.modules or os.path.exists("/content")`) that clones the repository and installs the package in editable mode (`pip install -q -e .`). In addition, automatically load API credentials from Colab Secrets (`google.colab.userdata.get(...)`) and sync them to `os.environ` (e.g. `HF_TOKEN`, `GEMINI_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `WANDB_API_KEY`) so that third-party tools and API clients authenticate seamlessly without manual user configuration or hardcoding.
 
 **7. Stage-by-Stage Visualization.**
 In research and data exploration, qualitative visual inspection is as critical as quantitative metrics.
