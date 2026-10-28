@@ -1,192 +1,185 @@
 ---
 name: wiki-llm
-description: Use when building or maintaining a durable research wiki from papers, articles, notes, transcripts, code findings, or web research; when asked to ingest sources, connect concepts, synthesize knowledge, query prior understanding, or audit wiki quality. Maintains only wiki/sources/, wiki/pages/, and wiki/index.md. Prioritizes evidence-grounded synthesis, correct page boundaries, explicit conceptual relationships, and cumulative understanding over summarization.
+description: Build and maintain a compounding LLM wiki from papers, articles, notes, transcripts, code findings, or web research. Implements Karpathy's LLM Wiki pattern — pre-compile sources into interlinked markdown instead of re-reading raw files (RAG). Use when ingesting sources, connecting concepts, synthesizing knowledge, querying prior understanding, auditing wiki quality, or when the user mentions llm wiki, karpathy wiki, wiki-llm, or a persistent knowledge-base alternative to RAG.
 ---
 
-# Wiki LLM — Compile Information into Understanding
+<wiki-llm>
+Implements Andrej Karpathy's LLM Wiki: the LLM pre-compiles raw documents into structured, interlinked markdown that compounds over time. Do not re-read raw files on every query. Sources are evidence. Pages are current synthesis. The index is the navigation and maintenance surface.
 
-## Mission
+Optimize for evidence-grounded claims, reusable concept pages, explicit relationships, visible uncertainty, and fast future retrieval — not collected summaries.
 
-Build a wiki that becomes a better model of its domain after every source and every serious question.
+**Use this wiki** for a focused domain that accumulates documents and needs synthesized insight. **Use RAG** for a broad or frequently-changing corpus, or when exact source citations must be regenerated per query.
 
-Do not optimize for collecting summaries. Optimize for evidence-grounded claims, reusable concept pages, explicit relationships, visible uncertainty, and fast future retrieval.
+### Topics Covered
+- **[Wiki-Structure]** — `raw/` + `wiki/{index.md,sources/,pages/}`; initialize; conventions
+- **[Reasoning-Rules]** — epistemic rules, page boundaries, typed relationships, orient-before-write
+- **[Ingest]** — five-pass pipeline from a raw source to updated synthesis
+- **[Query]** — answer from the wiki; persist only reusable results; research to fill a named gap
+- **[Audit-Lint]** — structural fixes, semantic investigation, ~20-page cadence
+- **[Anti-Patterns-and-Common-Mistakes]** — overload, skipped lint, RAG-shaped pages
+- **[Examples]** — end-to-end ingest → query → lint
+- References: [templates](references/templates.md), [quality-gate](references/quality-gate.md)
 
-Sources are evidence. Pages are current synthesis. The index is the navigation and maintenance surface.
+</wiki-llm>
 
-## Fixed Wiki Structure
-
-Use exactly:
-
+<Wiki-Structure>
 ```text
-wiki/
-├── index.md
-├── sources/
-│   └── <source-slug>.md
-└── pages/
-    └── <page-slug>.md
+<wiki-root>/
+├── raw/                 # immutable originals (PDFs, notes, dumps) — never edit
+└── wiki/
+    ├── index.md         # scope, topic map, tensions, gaps, recent updates
+    ├── sources/         # one evidence page per ingested source
+    └── pages/           # one synthesis page per reusable object of understanding
 ```
 
-Do not create `raw/`, `concepts/`, `entities/`, `queries/`, `log.md`, `SCHEMA.md`, or another wiki layout unless explicitly requested. This skill is the schema; `wiki/index.md` records navigation, gaps, tensions, and important recent updates.
+This skill is the schema. Do not create `INDEX.md`, `SCHEMA.md`, `log.md`, `concepts/`, `entities/`, or `queries/` unless the wiki already uses them.
 
-Read `references/templates.md` when initializing the wiki or writing a new source/page. Read `references/quality-gate.md` during audits or before completing any substantial ingest/refactor.
+If `wiki/` already exists with a different internal layout, keep working in that layout. Do not migrate or create a second tree.
 
-## Knowledge Model
+**Layers**
+- `raw/` — originals only. Read them; never modify. A source page can exist without a `raw/` file (web, conversation, experiment).
+- `wiki/sources/` — faithful extraction: provenance, claims, scope, limitations, integration candidates. Valuable even when no synthesis page is justified.
+- `wiki/pages/` — ideas, not documents. Types: `concept`, `entity`, `method`, `comparison`, `synthesis`, `question`. A page must integrate and connect; it must not echo one source.
+- `wiki/index.md` — scope, discriminative topic map, open tensions, knowledge gaps, compact recent-update history. Read first; update after every material change. That history is the operation log.
 
-### `wiki/sources/`: evidence layer
+**Initialize** (only when the task needs a wiki and it is absent): create `wiki/index.md`, `wiki/pages/`, `wiki/sources/`. Create `raw/` when storing a local original. Use the index template in [templates](references/templates.md).
 
-One source page per paper, article, note, transcript, dataset/report, experiment result, code investigation, or web source. Record provenance, faithful extraction, scope, limitations, and potential integrations.
+**Conventions**
+- Lowercase kebab-case filenames. Page name = concept, not source title.
+- Links: `[[page-slug]]`, `[[source-slug]]`. Open `wiki/` (not the wiki-root) as an Obsidian vault if a graph view is needed.
+- ISO dates `YYYY-MM-DD`. Label unsupported conclusions `Inference:` or `Hypothesis:`.
+- Work from the wiki-root so both `raw/` and `wiki/` are reachable.
+- Update only this structure unless explicitly told otherwise.
 
-A source page can be valuable without justifying a synthesis page.
+</Wiki-Structure>
 
-### `wiki/pages/`: synthesis layer
-
-One page per reusable object of understanding:
-
-- `concept`: definition, principle, mechanism, phenomenon;
-- `entity`: system, model, project, dataset, organization, person;
-- `method`: process, algorithm, workflow, technique;
-- `comparison`: stable trade-off or contrast;
-- `synthesis`: explanation spanning multiple concepts;
-- `question`: important unresolved or disputed issue.
-
-Pages are about ideas, not documents. A page must integrate and connect; it must not merely echo one source.
-
-### `wiki/index.md`: map and control layer
-
-The index contains scope, topic map, discriminative page descriptions, open tensions, knowledge gaps, and compact material-update history. Read it first and update it after any material change.
-
-## Epistemic Rules
-
-1. Separate evidence from synthesis: source pages state what sources support; pages state the integrated model.
+<Reasoning-Rules>
+1. Separate evidence from synthesis. Source pages state what sources support; pages state the integrated model.
 2. Make load-bearing claims traceable to source pages.
 3. Preserve claim status where it matters: `established`, `supported`, `provisional`, `disputed`, `inferred`, `unknown`.
-4. Preserve disagreement; identify exactly what conflicts and what evidence might resolve it.
-5. Do not treat repeated assertion as independent evidence.
-6. Preserve applicability boundaries: assumptions, conditions, metrics, dates, population, and failure modes.
-7. Use links to encode meaning, not term co-occurrence.
-8. Prefer surgical edits; do not overwrite still-valid synthesis.
-9. Treat missing evidence as a recorded gap, not a license to guess.
+4. Preserve disagreement. Name exactly what conflicts and what evidence might resolve it.
+5. Repeated assertion is not independent evidence.
+6. Preserve applicability boundaries: assumptions, conditions, metrics, dates, population, failure modes.
+7. Links encode meaning, not term co-occurrence. Following a link must help answer a realistic future question.
+8. Prefer surgical edits. Do not overwrite still-valid synthesis.
+9. Missing evidence is a recorded gap, not a license to guess.
 
-## Page Boundary Rules
+**Create a page** when the idea is independently queryable, foundational to other explanations, supported by multiple claims/relations/sources, is an important comparison or mechanism, or needs a durable home for unresolved evidence.
 
-Create a page when an idea is independently queryable, foundational to other explanations, supported by multiple meaningful claims/relations/sources, represents an important comparison or mechanism chain, or needs a durable place for unresolved evidence.
+**Merge** when new information sharpens the same definition, mechanism, question, entity, trade-off, or conclusion.
 
-Merge into an existing page when new information sharpens the same definition, mechanism, question, entity, trade-off, or conclusion.
+**Do not create a page** for every source, incidental mention, isolated example, temporary answer, or conclusion that belongs on an existing page.
 
-Do not create a page for every source, incidental mention, isolated example, temporary answer, or conclusion that naturally belongs inside an existing page.
+**Split** when a page answers independent questions, is no longer retrievable as one unit, or repeated updates touch only a separable section. Preserve links and update the index.
 
-Split a page when it answers independent questions, is no longer retrievable as one unit, or repeated updates affect only a separable section. Preserve links between the resulting pages and update the index.
-
-## Relationship Protocol
-
-Material links must name the relationship and why it matters. Prefer relations such as:
-
-`is-a`, `part-of`, `requires`, `enables`, `causes`, `mediates`, `measures`, `operationalizes`, `generalizes`, `contrasts-with`, `competes-with`, `contradicts`, `explains`, `applies-to`.
-
-Use this form:
+Material links name the relation and why it matters. Prefer: `is-a`, `part-of`, `requires`, `enables`, `causes`, `mediates`, `measures`, `operationalizes`, `generalizes`, `contrasts-with`, `competes-with`, `contradicts`, `explains`, `applies-to`.
 
 ```md
 - **Requires →** [[related-page]]: depends on ... Evidence: [[source-slug]].
 - **Contrasts with →** [[alternative-page]]: both address ..., but differ in ... Evidence: [[source-a]], [[source-b]].
 ```
 
-Do not add a link unless following it would help answer a realistic future question.
-
-## Always Orient Before Writing
-
-For every ingest, query, integration, or audit:
-
-1. Confirm the fixed wiki structure exists; initialize only if the task requires a wiki and it is absent.
+**Orient before every ingest, query, integration, or audit:**
+1. Confirm the structure exists; initialize only if the task needs a wiki and it is absent.
 2. Read `wiki/index.md`.
-3. Search existing pages and sources for central terms, aliases, and adjacent concepts.
-4. Read relevant pages before deciding whether to create, merge, relate, split, or record a tension.
+3. Search pages and sources for central terms, aliases, and adjacent concepts.
+4. Read relevant pages before creating, merging, relating, splitting, or recording a tension.
 
 Never create a page before checking whether the idea already exists under another name or as part of a broader page.
 
-## Initialize
+</Reasoning-Rules>
 
-Create only `wiki/index.md`, `wiki/pages/`, and `wiki/sources/`. Use the index template in `references/templates.md`.
+<Ingest>
+Ingestion is a reasoning pipeline, not a summary command. Never edit files in `raw/`. Do not paste long copyrighted text — capture metadata, faithful paraphrase, necessary short excerpts, and a pointer to the original (`raw/<file>` or URL).
 
-## Ingest a Source
+If asked to ingest the backlog: process `raw/` files that have no source page and are not already recorded in the index recent-updates.
 
-Ingestion is a reasoning pipeline, not a summary command.
+### Pass 1 — Capture source evidence
+Create or update `wiki/sources/<source-slug>.md` from the source template in [templates](references/templates.md). Record claims, support, scope, limitations, and integration candidates. Do not blend later inference into source-reported content.
 
-### Pass 1: Capture source evidence
+### Pass 2 — Extract what can change understanding
+Identify the source's central question, definitions, atomic claims and support, mechanisms, assumptions, applicability boundaries, results, contradictions, gaps, and affected existing concepts. Keep what may alter future reasoning; omit storage-only detail.
 
-Create or update `wiki/sources/<source-slug>.md` using the source template. Faithfully record source claims, support, scope, limitations, and integration candidates. Do not blend later inference into source-reported content.
+### Pass 3 — Map each knowledge unit
+Classify before editing synthesis pages: `ignore` | `source-only` | `merge` | `new-page` | `relationship` | `tension` | `gap`.
 
-Do not paste long copyrighted text. Capture metadata, faithful paraphrase, necessary short excerpts only, and a reference to the original.
+### Pass 4 — Integrate into pages
+For every materially affected page: preserve stable explanation, revise only affected sections, link claims to sources, add semantic relationships, state conflict or narrowed scope, refresh metadata. Create a new page only after the boundary rules. Use the page template in [templates](references/templates.md).
 
-### Pass 2: Extract what can change understanding
+### Pass 5 — Update the index
+Update topic-map entries, tensions, gaps, and one compact recent-update item that describes the change in understanding, not only the edited files. Be selective: a typical ingest updates 10–15 pages, not one page per sentence.
 
-Identify the source's central question, definitions, atomic claims and support, mechanisms, assumptions, applicability boundaries, results, contradictions, gaps, and affected existing concepts.
+After a substantial ingest, run the page quality gate in [quality-gate](references/quality-gate.md).
 
-Be selective: retain information that may alter future reasoning or decisions; omit detail that only adds storage.
+</Ingest>
 
-### Pass 3: Map each knowledge unit
-
-Classify each extracted unit before editing synthesis pages:
-
-- `ignore`: out of scope or not durable;
-- `source-only`: worth preserving but not synthesis-worthy yet;
-- `merge`: improves an existing page;
-- `new-page`: establishes a reusable concept/entity/method/comparison/synthesis/question;
-- `relationship`: adds a meaningful connection;
-- `tension`: challenges or narrows an existing conclusion;
-- `gap`: creates an important investigation item.
-
-### Pass 4: Integrate into pages
-
-For every materially affected page: preserve stable explanation, revise only affected sections, link important claims to sources, add semantic relationships, state conflict or narrowed scope, and refresh metadata.
-
-Create a new page only after applying the boundary rules. Use the page template in `references/templates.md`.
-
-### Pass 5: Update the index
-
-Update topic-map entries, tensions, gaps, and one compact recent-update item describing the change in understanding rather than only listing edited files.
-
-## Query the Wiki
-
+<Query>
 1. Read the index; identify relevant pages, tensions, and gaps.
-2. Read the smallest relevant set of synthesis pages.
+2. Read the smallest relevant set of synthesis pages. Use only `wiki/` as the answer source.
 3. Verify load-bearing claims through their linked source pages.
 4. Answer from the wiki's model with page/source citations.
 5. State clearly when evidence is absent, narrow, or conflicting.
-6. Identify durable new relationships, clarifications, or gaps exposed by the query.
+6. Note durable new relationships, clarifications, or gaps the query exposed.
 
-Update the wiki from a query only when the result is reusable synthesis: a recurring explanation, comparison, sharpened/resolved tension, or important new relationship. When the task is only Q&A, answer first and propose the durable update rather than silently expanding the wiki.
+Update the wiki from a query only when the result is reusable synthesis: a recurring explanation, comparison, sharpened or resolved tension, or important new relationship. When the task is only Q&A, answer first and propose the durable update rather than silently expanding the wiki.
 
-## Research to Fill a Gap
-
-When external research is required:
-
+**Research to fill a gap**
 1. Start from a named gap, disputed claim, or question.
-2. Seek sources capable of changing the answer: primary records, official documentation, papers, datasets, or strong analyses.
+2. Seek sources capable of changing the answer: primary records, official docs, papers, datasets, or strong analyses.
 3. For contested topics, deliberately seek credible counter-evidence.
-4. Ingest each useful source through the full pipeline.
+4. Ingest each useful source through the full pipeline. Use `gemini-deep-research` for long-running web investigations; use `pdf-to-markdown-mcp` when a PDF must be read before capture.
 5. Revise synthesis only after comparing new evidence against the existing model.
 
 Search snippets are leads, not evidence. Read and capture a source before it supports durable wiki claims.
 
-## Audit / Lint
+</Query>
 
-Fix structural faults directly: missing required structure, broken links, important pages absent from the index, clear duplicate pages, clearly inconsistent metadata, and orphan pages with no useful relation to the wiki.
+<Audit-Lint>
+Run after roughly every 20 new pages, or when asked to lint / health-check / audit.
 
-Investigate semantic faults before fixing: source-shaped summaries pretending to be concepts, unsupported or overgeneralized claims, stale conclusions, hidden contradictions, over-broad or over-fragmented pages, meaningless links, missing central pages, and stale index descriptions.
+**Fix structural faults directly:** missing required structure, broken `[[links]]`, important pages absent from the index, clear duplicates, metadata that the file itself can correct, orphan pages with no useful relation, and any edit that touched `raw/`.
 
-Use `references/quality-gate.md` for the full audit checklist and page pass criteria. Reflect important unresolved findings in the index.
+**Investigate semantic faults before fixing:** source-shaped summaries pretending to be concepts, unsupported or overgeneralized claims, stale conclusions, hidden contradictions, over-broad or over-fragmented pages, meaningless links, missing central pages, stale index descriptions.
 
-## Conventions
+Use [quality-gate](references/quality-gate.md) for the full checklist and the seven page-pass tests. Reflect important unresolved findings in the index.
 
-- Use lowercase kebab-case filenames.
-- Use `[[page-slug]]` and `[[source-slug]]` links; explain material relationships in prose.
-- Name synthesis pages after concepts or questions, not source titles.
-- Use ISO dates: `YYYY-MM-DD`.
-- Label model-generated conclusions explicitly as `Inference:` or `Hypothesis:` when not directly supported.
-- Keep index descriptions concise and discriminative.
-- Update only the fixed wiki structure unless explicitly told otherwise.
+</Audit-Lint>
 
-## Completion Report
+<Connecting-Skills>
+- **Companions**: `gemini-deep-research` when a named gap needs a long-running web investigation; `pdf-to-markdown-mcp` when a PDF in `raw/` must be converted before capture; `research-and-experiments` when an experiment produces wiki-worthy findings — ingest the write-up as a source.
+- **Successors**: `manage-skills` if this skill itself needs to change.
+
+</Connecting-Skills>
+
+<Anti-Patterns-and-Common-Mistakes>
+- **Overloading pages** — one concept per file; split when a page stops being one retrievable unit.
+- **Skipping lint** — contradictions accumulate silently; run every ~20 pages.
+- **Mixing unrelated topics** — focused wikis produce richer link graphs.
+- **Ignoring the index** — every material operation updates `wiki/index.md`.
+- **Wrong vault / working directory** — launch from the wiki-root; open only `wiki/` in Obsidian, or the graph mixes PDFs with pages.
+- **RAG-shaped pages** — a page that only summarizes one source is a source page, not synthesis.
+- **Editing `raw/`** — originals are immutable; only `wiki/` is writable.
+- **Silent wiki growth from Q&A** — answer first; persist only reusable synthesis.
+- **Decorative links** — no link unless the relation and its evidence are stated.
+
+</Anti-Patterns-and-Common-Mistakes>
+
+<Examples>
+Building a transformer-architecture wiki from five papers:
+
+1. Initialize `<wiki-root>/raw/` and `<wiki-root>/wiki/` with empty `index.md`, `sources/`, `pages/`.
+2. Drop papers into `raw/`: `attention-all-you-need.pdf`, `bert.pdf`, `gpt3.pdf`, `rlhf.pdf`, `foundation-models.pdf`. Convert PDFs with `pdf-to-markdown-mcp` when the raw file cannot be read directly.
+3. Ingest. Each paper becomes `wiki/sources/<slug>.md`. Synthesis pages such as `attention-mechanism.md`, `positional-encoding.md`, `masked-language-modeling.md`, `rlhf.md` are created or updated with typed `[[wiki-links]]` and claim-level source citations.
+4. Query: "What's the difference between encoder-only and decoder-only transformers?" Answer from existing pages. If the contrast is reusable, save `wiki/pages/encoder-vs-decoder.md` (`type: comparison`) and update the index.
+5. After ~20 pages, lint. A conflict such as `bert` vs `roberta` on pretraining-data size is recorded as a tension on both pages and in the index, not silently averaged.
+
+**Mistake caught:** Obsidian opened on the wiki-root instead of `wiki/` — graph view mixed raw PDFs with pages. Open only `wiki/`.
+
+</Examples>
+
+<wiki-llm-reference>
+- [templates](references/templates.md) — index, source page, and synthesis page templates. Read when initializing or creating a new source/page.
+- [quality-gate](references/quality-gate.md) — seven page-pass tests, structural vs semantic audit, audit output. Read during lint or before completing a substantial ingest.
 
 After ingest, synthesis update, or audit, report:
 
@@ -199,3 +192,5 @@ After ingest, synthesis update, or audit, report:
 - Tensions or uncertainty preserved: <brief list or none>
 - Highest-value next investigation: <one item or none>
 ```
+
+</wiki-llm-reference>

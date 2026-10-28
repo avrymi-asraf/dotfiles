@@ -10,7 +10,8 @@
                     "manage-skills",
                     "project-agent-systems",
                     "code-as-tools",
-                    "colab-cli"
+                    "colab-cli",
+                    "wiki-llm"
                 ]
             }
         ],
@@ -80,7 +81,7 @@
                     "scripts",
                     "agent-and-skill-improvement",
                     "coding-principles",
-                    "llm-wiki"
+                    "wiki-llm"
                 ]
             },
             {
@@ -91,7 +92,7 @@
                     "scripts",
                     "agent-and-skill-improvement",
                     "coding-principles",
-                    "llm-wiki"
+                    "wiki-llm"
                 ]
             },
             {
@@ -102,7 +103,7 @@
                     "scripts",
                     "agent-and-skill-improvement",
                     "coding-principles",
-                    "llm-wiki"
+                    "wiki-llm"
                 ]
             },
             {

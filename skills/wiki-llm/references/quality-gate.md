@@ -21,6 +21,7 @@ Revise pages that fail. Do not merely record that they failed.
 ## Structural Audit: Fix Directly
 
 - Missing `wiki/index.md`, `wiki/pages/`, or `wiki/sources/`.
+- Any edit to files under `raw/` — restore the original; only `wiki/` is writable.
 - Broken `[[page]]` or `[[source]]` links.
 - Important synthesis pages omitted from the index.
 - Duplicate pages for one concept under aliases or near-synonyms.

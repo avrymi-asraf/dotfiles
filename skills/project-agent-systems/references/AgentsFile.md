@@ -61,22 +61,16 @@ app arg1 arg2 --option1 value1 --option2 value2
 
 ---
 
-<<<<<<<< HEAD:skills/project-agent-systems/references/createAgentsFile.md
-## Status - remember to update it
-========
 
-## relevant documents
-<Provide links to any relevant documents, such as design documents, plans, skills that are relevant to this project (not general skills)>
-
-
-
-
-## Status
->>>>>>>> refs/remotes/origin/main:skills/project-agent-systems/references/AgentsFile.md
+## Status remember to update it when you make changes
 <What are the status of the project? in dev, if we need to deploy - in prsees. it soulde be smale pharagrap that describe what is the status.
 we use projct x on google, initlaize the bla bla.
 >
 <This section must be added to the `Agents.md` file exactly as written below:>
+
+## relevant documents
+<Provide links to any relevant documents, such as design documents, plans, skills that are relevant to this project (not general skills)>
+
 
 ## Code Writing Rules
 Do not create new documentation files (unless explicitly requested). Only update documentation via the `README` if necessary.

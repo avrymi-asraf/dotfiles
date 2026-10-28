@@ -39,7 +39,7 @@ source_kind: paper | article | book | transcript | note | codebase | experiment 
 author_or_origin: "<author, organization, user, repository, or unknown>"
 published: YYYY-MM-DD | unknown
 captured: YYYY-MM-DD
-url_or_location: "<URL, path, identifier, or user-provided>"
+url_or_location: "<raw/<file>, URL, path, identifier, or user-provided>"
 reliability: primary | secondary | informal | user-provided | unknown
 status: processed | partial | needs-review
 tags: [<tag>]
