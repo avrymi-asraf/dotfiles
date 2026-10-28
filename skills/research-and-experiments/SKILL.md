@@ -1,8 +1,11 @@
+---
+name: research-and-experiments
+description: Structure, workflows, and best practices for formulating hypotheses, designing, executing, and documenting research experiments.
+---
 
+# Research and Experiments
 
-
-
-data structure:
+## Data Structure:
 experiments - folder:
   - readme.md - every experiment, with short description.
   - <topic> - folder:

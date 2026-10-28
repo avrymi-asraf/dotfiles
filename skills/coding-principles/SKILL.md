@@ -1,6 +1,6 @@
 ---
 name: coding-principles
-description: coding-principles
+description: Fundamental principles for code clarity, naming uniformity, live execution, and clean architecture.
 ---
 Coding principles.
 Code is the way to communicate with the machine, it is critical that it be clear to a person who enters from the outside.
